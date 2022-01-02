@@ -1,0 +1,4 @@
+{
+  "out": "./dist",
+  "input": "./example/index.html"
+}

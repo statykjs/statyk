@@ -1,0 +1,24 @@
+{
+  "name": "deadsimple",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "build": "node --experimental-modules --experimental-specifier-resolution=node ./src/build.js",
+    "watch": "nodemon --experimental-modules --experimental-specifier-resolution=node ./src/build.js"
+  },
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "chalk": "^5.0.0",
+    "cosmiconfig": "^7.0.1",
+    "front-matter": "^4.0.2",
+    "fs-extra": "^10.0.0",
+    "glob": "^7.2.0",
+    "lodash-es": "^4.17.21",
+    "marked": "^4.0.8",
+    "memory-cache": "^0.2.0",
+    "node-html-parser": "^5.2.0"
+  }
+}
