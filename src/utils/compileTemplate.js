@@ -17,11 +17,19 @@ const runExpression = (js, globalVars = {}) => {
       },
     });
 
-    return vm.run(`
-    const props = {${Object.keys(globalVars)
-      .map((v) => `${v}: "${globalVars[v]}",`)
-      .join("\n")}};
-    module.exports = ${js}`);
+    const props = `
+      const props = {
+        ${Object.keys(globalVars)
+          .filter((key) => key !== "src")
+          .map((v) => `${v}: "${globalVars[v]}",`)
+          .join("\n")}
+      };
+    `;
+    const code = `
+      ${props}
+      module.exports = ${js};
+    `;
+    return vm.run(code);
   } catch (err) {
     logger.warn(err);
   }
@@ -33,9 +41,10 @@ const runExpression = (js, globalVars = {}) => {
  * @param {string} baseFolder
  * @returns
  */
-const resolveIncludes = (html, baseFolder, vars = {}) => {
+const compileTemplate = (html, baseFolder, vars = {}) => {
   const root = parse(html);
   const includes = root.querySelectorAll("include[src]");
+  const MUSTACHE_REGEX = /\\?\{\{(.+?)\}\}/gs;
 
   includes.forEach((include) => {
     const url = include.getAttribute("src");
@@ -43,18 +52,16 @@ const resolveIncludes = (html, baseFolder, vars = {}) => {
     const html = fs.readFileSync(parsedUrl, { encoding: "utf-8" });
     const nestedUrl = path.join(baseFolder, path.dirname(url));
 
-    const CURLY_REGEX = /\{\{([^}]+)\}\}/;
-    const CURLY_REGEX_ALL = /\{\{([^}]+)\}\}/gim;
+    // Evaluate mustaches in props
     Object.keys(include.attributes).forEach((attr) => {
-      const match = include.attributes[attr].match(CURLY_REGEX);
-      if (attr && match) {
+      regexMatchAll(MUSTACHE_REGEX, include.attributes[attr], (match) => {
         include.setAttribute(attr, runExpression(match[1], vars));
-      }
+      });
     });
 
-    function interpolateCurly(html, attrs) {
-      const { matches } = regexMatchAll(CURLY_REGEX_ALL, html);
-      matches.forEach((match) => {
+    // evaluate mustache in html template
+    function evaluateMustaches(html, attrs) {
+      regexMatchAll(MUSTACHE_REGEX, html, (match) => {
         const expression = match[1];
         html = html.replace(match[0], runExpression(expression, attrs));
       });
@@ -63,8 +70,8 @@ const resolveIncludes = (html, baseFolder, vars = {}) => {
 
     include.replaceWith(
       parse(
-        interpolateCurly(
-          resolveIncludes(html, nestedUrl, include.attributes),
+        evaluateMustaches(
+          compileTemplate(html, nestedUrl, include.attributes),
           include.attributes
         )
       )
@@ -74,4 +81,4 @@ const resolveIncludes = (html, baseFolder, vars = {}) => {
   return root.innerHTML;
 };
 
-export default resolveIncludes;
+export default compileTemplate;

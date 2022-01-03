@@ -1,1 +1,11 @@
 <p>upper {{props.myProp}}</p>
+
+<div class="row">
+  {{[1, 2, 3].map(v => `<include
+    src="./partials/card.html"
+    title="${v}"
+    desc="nice"
+    linkHref="#"
+    linkText="text-${v}"
+  />`).join('\n')}}
+</div>

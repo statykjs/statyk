@@ -2,9 +2,10 @@
  *
  * @param {RegExp} regex
  * @param {string} template
+ * @param {(match: string) => void} template
  * @returns {{matches: string[], template: string}}
  */
-const regexMatchAll = (regex, template) => {
+const regexMatchAll = (regex, template, callback) => {
   /** allMatches holds all the results of RegExp.exec() */
   const allMatches = [];
   let match = regex.exec(template);
@@ -20,6 +21,9 @@ const regexMatchAll = (regex, template) => {
     match = regex.exec(template);
   }
 
+  if (callback) {
+    allMatches.forEach(callback);
+  }
   return { matches: allMatches, input };
 };
 

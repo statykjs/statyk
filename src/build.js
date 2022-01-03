@@ -8,7 +8,7 @@ import { parse } from "node-html-parser";
 import { cosmiconfigSync } from "cosmiconfig";
 import cache from "memory-cache";
 
-import resolveIncludes from "./utils/resolveIncludes";
+import compileTemplate from "./utils/compileTemplate";
 import copyAssets from "./utils/copyAssets";
 import logger from "./utils/logger";
 import resolvePath from "./utils/resolvePath";
@@ -32,7 +32,7 @@ function compile(inputFile = INPUT_FILE) {
 
   logger.log(`\nBuilding ${fileName}`, "magentaBright");
 
-  root.innerHTML = resolveIncludes(root.innerHTML, BASE_FOLDER);
+  root.innerHTML = compileTemplate(root.innerHTML, BASE_FOLDER);
 
   copyAssets(BASE_FOLDER, OUTPUT_FOLDER);
 
@@ -66,7 +66,7 @@ function compile(inputFile = INPUT_FILE) {
   //       .querySelector("head")
   //       .setAttribute("data-prop-title", frontmatter.attributes.title);
   //     include.innerHTML = html;
-  //     root.innerHTML = resolveIncludes(root.innerHTML, OUTPUT_FOLDER);
+  //     root.innerHTML = compileTemplate(root.innerHTML, OUTPUT_FOLDER);
 
   //     fs.ensureDirSync(path.dirname(file));
   //     fs.writeFileSync(file, root.toString());
@@ -78,6 +78,7 @@ function compile(inputFile = INPUT_FILE) {
   // }
 
   fs.writeFileSync(path.join(OUTPUT_FOLDER, fileName), root.toString());
+  logger.log("DONE", "green");
 }
 
 compile(INPUT_FILE);
