@@ -20,8 +20,38 @@ const INPUT_FILE = path.resolve(config.input);
 const BASE_FOLDER = path.dirname(config.input);
 const OUTPUT_FOLDER = config.out;
 
-let compilationCache = {};
 fs.emptyDirSync(OUTPUT_FOLDER);
+
+function relinkHyperlinks(root, baseFolder) {
+  try {
+    // Relink & parse hyperlinked files
+    const hyperlinks = root.querySelectorAll('a[href!="#"]');
+    hyperlinks.forEach((hyperlink) => {
+      const rawUrl = hyperlink
+        .getAttribute("href")
+        .replace(/^(?:\.\/)+/, "")
+        .replace(/^(?:\.\.\/)+/, "");
+
+      if (rawUrl.startsWith("http")) {
+        return;
+      }
+      const assetUrl = resolvePath(baseFolder, rawUrl);
+      hyperlink.setAttribute("href", `./${rawUrl.replace(".html", "")}`);
+      // Fix css newline classes
+      if (hyperlink.attributes.class) {
+        hyperlink.setAttribute(
+          "class",
+          hyperlink.attributes.class.replace(/\s+/gim, " ")
+        );
+      }
+      if (!cache.get(assetUrl)) {
+        compile(assetUrl);
+      }
+    });
+  } catch (err) {
+    console.log(err);
+  }
+}
 
 function compile(inputFile = INPUT_FILE) {
   cache.put(inputFile, true);
@@ -36,7 +66,7 @@ function compile(inputFile = INPUT_FILE) {
 
   copyAssets(BASE_FOLDER, OUTPUT_FOLDER);
 
-  // relinkHyperlinks(root, OUTPUT_FOLDER);
+  relinkHyperlinks(root, BASE_FOLDER);
 
   const LIVE_RELOAD_SCRIPT = `
   <script>

@@ -1,3 +1,7 @@
+import resolvePath from "./utils/resolvePath";
+import cache from "memory-cache";
+import compile from "./build";
+
 function relinkHyperlinks(root, OUTPUT_FOLDER = OUTPUT_FOLDER) {
   try {
     // Relink & parse hyperlinked files
@@ -20,7 +24,7 @@ function relinkHyperlinks(root, OUTPUT_FOLDER = OUTPUT_FOLDER) {
           hyperlink.attributes.class.replace(/\s+/gim, " ")
         );
       }
-      if (!compilationCache[assetUrl]) {
+      if (!cache.get(assetUrl)) {
         compile(assetUrl);
       }
     });
@@ -28,3 +32,5 @@ function relinkHyperlinks(root, OUTPUT_FOLDER = OUTPUT_FOLDER) {
     console.log(err);
   }
 }
+
+export default relinkHyperlinks;
