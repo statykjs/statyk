@@ -17,12 +17,13 @@ import removeTrailingDots from "./utils/removeTrailingDots";
 const explorer = cosmiconfigSync("deadsimple");
 const { config } = explorer.load(".deadsimplerc");
 
-const INPUT_FILE = path.resolve(config.input);
-const BASE_FOLDER = path.dirname(config.input);
-const PAGES_FOLDER = config.pagesFolder;
-const OUTPUT_FOLDER = config.out;
+export const INPUT_FILE = path.resolve(config.input);
+export const BASE_FOLDER = path.dirname(config.input);
+export const PAGES_FOLDER = config.pagesFolder;
+export const OUTPUT_FOLDER = config.out;
 
 fs.emptyDirSync(OUTPUT_FOLDER);
+const PAGES_REGEX = new RegExp(`^\\b${PAGES_FOLDER}\\b`);
 
 function relinkHyperlinks(root, baseFolder) {
   try {
@@ -33,8 +34,7 @@ function relinkHyperlinks(root, baseFolder) {
       const assetUrl = resolvePath(baseFolder, rawUrl);
       if (rawUrl.startsWith("http")) return;
 
-      const pagesRegex = new RegExp(`^\\b${PAGES_FOLDER}\\b`);
-      const href = `/${rawUrl.replace(pagesRegex, "").replace("/", "")}`;
+      const href = `/${rawUrl.replace(PAGES_REGEX, "").replace("/", "")}`;
       hyperlink.setAttribute("href", href);
 
       // Fix css newline classes
@@ -55,15 +55,32 @@ function relinkHyperlinks(root, baseFolder) {
   }
 }
 
+const isPagesFolder = (filePath) => {
+  return filePath.split(path.sep)[0] === PAGES_FOLDER;
+};
+
+const injectLiveReloadScript = (root) => {
+  const LIVE_RELOAD_SCRIPT = `
+  <script>
+    document.write('<script src="http://' + (location.host || 'localhost').split(':')[0] + ':35729/livereload.js?snipver=1"></' + 'script>')
+  </script>
+  `;
+  root.set_content(`
+    ${root.innerHTML}
+    ${LIVE_RELOAD_SCRIPT}
+  `);
+};
+
 function writeToPagesFolder(root, filePath) {
   // remove pages folder
-  const finalFolder = filePath.replace(PAGES_FOLDER, "");
+  const finalFolder = filePath.replace(PAGES_REGEX, "");
   ensureDirSync(path.join(OUTPUT_FOLDER, path.dirname(finalFolder)));
 
-  // get all the links with url to remove it's url
-  const selector = `a[href=".${finalFolder
-    .replace(new RegExp(`\\${path.sep}`, "g"), "/")
-    .replace(".html", "")}"]`;
+  // change link to # if the link is the same page as current page
+  const selector = `a[href="${finalFolder.replace(
+    new RegExp(`\\${path.sep}`, "g"),
+    "/"
+  )}"]`;
   const aLinks = root.querySelectorAll(selector);
   aLinks.forEach((link) => link.setAttribute("href", "#"));
 
@@ -86,8 +103,9 @@ function compile(inputFile = INPUT_FILE) {
 
     relinkHyperlinks(root, BASE_FOLDER);
 
+    injectLiveReloadScript(root);
     // write to pages folder
-    if (filePath.split(path.sep)[0] === PAGES_FOLDER) {
+    if (isPagesFolder(filePath)) {
       writeToPagesFolder(root, filePath);
     } else {
       // write index
