@@ -4,6 +4,7 @@ import { parse } from "node-html-parser";
 import regexMatchAll from "./regexMatchAll";
 import runExpression from "./runExpression";
 import JSON from "json-normalize";
+import removeTrailingDots from "./removeTrailingDots";
 
 export const MUSTACHE_REGEX = /\\?\{\{(.+?)\}\}/gs;
 
@@ -22,7 +23,21 @@ function evaluateMustaches(html, attrs) {
 }
 
 /**
- *
+ * @param {import("node-html-parser/dist/nodes/html").Attributes} element
+ * @param {Record<string, any>} vars
+ */
+function evaluateMustachesInProps(attributes, vars) {
+  let props = [];
+  Object.keys(attributes).map((attr) => {
+    regexMatchAll(MUSTACHE_REGEX, attributes[attr], (match) => {
+      const value = JSON.normalizeSync(runExpression(match[1], vars));
+      props.push({ attr, value });
+    });
+  });
+  return props;
+}
+
+/**
  * @param {string} html
  * @param {string} baseFolder
  * @returns
@@ -32,17 +47,14 @@ const compileTemplate = (html, baseFolder, vars = {}) => {
   const includes = root.querySelectorAll("include[src]");
 
   includes.forEach((include) => {
-    const url = include.getAttribute("src");
+    const url = removeTrailingDots(include.getAttribute("src"));
     const parsedUrl = path.resolve(baseFolder, url);
     const nestedUrl = path.join(baseFolder, path.dirname(url));
     const html = fs.readFileSync(parsedUrl, { encoding: "utf-8" });
 
-    // Evaluate mustaches in props
-    Object.keys(include.attributes).forEach((attr) => {
-      regexMatchAll(MUSTACHE_REGEX, include.attributes[attr], (match) => {
-        const value = JSON.normalizeSync(runExpression(match[1], vars));
-        include.setAttribute(attr, value);
-      });
+    const evaluatedProps = evaluateMustachesInProps(include.attributes, vars);
+    evaluatedProps.forEach((prop) => {
+      include.setAttribute(prop.attr, prop.value);
     });
 
     include.replaceWith(

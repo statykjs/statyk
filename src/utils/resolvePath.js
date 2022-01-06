@@ -6,6 +6,6 @@ import path from "node:path";
  * @returns {string}
  */
 const resolvePath = (baseFolder, url) => {
-  return path.resolve(process.cwd(), baseFolder, url);
+  return path.resolve(process.cwd(), baseFolder, ...url.split(path.sep));
 };
 export default resolvePath;

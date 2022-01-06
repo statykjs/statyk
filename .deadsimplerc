@@ -1,4 +1,5 @@
 {
   "out": "./dist",
-  "input": "./example/index.html"
+  "input": "./example/index.html",
+  "pagesFolder": 'pages'
 }
