@@ -34,7 +34,12 @@ const runExpression = (js, globalVars = {}) => {
       })
       .join("\n");
 
+    const utils = `
+      const map = (arr, cb) => arr.map((i, a) => cb(i, a)).join('\\n');
+    `;
+
     const props = `
+      ${utils}
       const props = {
         ${p}
       };

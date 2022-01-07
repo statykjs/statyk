@@ -1,10 +1,7 @@
-<!DOCTYPE html>
-<html lang="en">
-  <include src="./partials/head.html" title='{{"Cool" + "Page"}}' />
-  <body>
-    <include src="./partials/navbar.html" />
-    <h2>Home Page</h2>
+<include src="./partials/layout.html">
+  <h2>Home Page</h2>
 
-    <include src="./cards.html" myProp="{{['hello', 'world']}}" />
-  </body>
-</html>
+  <include src="./cards.html" myProp="{{['hello', 'world']}}">
+    {{1+1}}
+  </include>
+</include>

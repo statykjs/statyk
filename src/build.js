@@ -118,7 +118,7 @@ function compile(inputFile = INPUT_FILE) {
       process.exit(1);
     }
 
-    console.log(err.message);
+    console.log(err);
   }
 }
 

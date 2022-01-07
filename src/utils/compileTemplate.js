@@ -23,6 +23,21 @@ function evaluateMustaches(html, attrs) {
 }
 
 /**
+ * evaluate mustache in html template
+ * @param {string} html
+ * @param {string} children
+ * @returns {string}
+ */
+function evaluateSlots(html, children) {
+  const root = parse(html);
+  const slots = root.querySelectorAll("slot");
+  slots.forEach((slot) => {
+    slot.replaceWith(children);
+  });
+  return root.innerHTML;
+}
+
+/**
  * @param {import("node-html-parser/dist/nodes/html").Attributes} element
  * @param {Record<string, any>} vars
  */
@@ -57,14 +72,16 @@ const compileTemplate = (html, baseFolder, vars = {}) => {
       include.setAttribute(prop.attr, prop.value);
     });
 
-    include.replaceWith(
-      parse(
-        evaluateMustaches(
-          compileTemplate(html, nestedUrl, include.attributes),
-          include.attributes
-        )
-      )
+    let finalHtml = evaluateMustaches(
+      compileTemplate(html, nestedUrl, include.attributes),
+      include.attributes
     );
+    finalHtml = compileTemplate(
+      evaluateSlots(finalHtml, include.innerHTML),
+      baseFolder,
+      include.attributes
+    );
+    include.replaceWith(parse(finalHtml));
   });
 
   return parse(evaluateMustaches(root.innerHTML, vars));
