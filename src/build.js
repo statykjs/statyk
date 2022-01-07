@@ -113,10 +113,10 @@ function compile(inputFile = INPUT_FILE) {
     }
     logger.log(`DONE - ${fileName}`, "green");
   } catch (err) {
-    if (err.code == "ENOENT") {
-      logger.error(`No such file: "${filePath}"`);
-      process.exit(1);
-    }
+    // if (err.code == "ENOENT") {
+    //   logger.error(`No such file: "${filePath}"`);
+    //   process.exit(1);
+    // }
 
     console.log(err);
   }

@@ -62,9 +62,8 @@ const compileTemplate = (html, baseFolder, vars = {}) => {
   const includes = root.querySelectorAll("include[src]");
 
   includes.forEach((include) => {
-    const url = removeTrailingDots(include.getAttribute("src"));
+    const url = include.getAttribute("src");
     const parsedUrl = path.resolve(baseFolder, url);
-    const nestedUrl = path.join(baseFolder, path.dirname(url));
     const html = fs.readFileSync(parsedUrl, { encoding: "utf-8" });
 
     const evaluatedProps = evaluateMustachesInProps(include.attributes, vars);
@@ -72,13 +71,12 @@ const compileTemplate = (html, baseFolder, vars = {}) => {
       include.setAttribute(prop.attr, prop.value);
     });
 
-    let finalHtml = evaluateMustaches(
-      compileTemplate(html, nestedUrl, include.attributes),
-      include.attributes
-    );
-    finalHtml = compileTemplate(
-      evaluateSlots(finalHtml, include.innerHTML),
-      baseFolder,
+    const finalHtml = evaluateMustaches(
+      compileTemplate(
+        evaluateSlots(html, include.innerHTML),
+        baseFolder,
+        include.attributes
+      ),
       include.attributes
     );
     include.replaceWith(parse(finalHtml));
