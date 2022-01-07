@@ -8,7 +8,8 @@ import compileTemplate from "./utils/compileTemplate";
 import copyAssets from "./utils/copyAssets";
 import logger from "./utils/logger";
 import resolvePath from "./utils/resolvePath";
-import removeTrailingDots from "./utils/removeTrailingDots";
+import injectLiveReloadScript from "./utils/injectLiveReloadScript";
+import writeToOutput from "./utils/writeToOutput";
 
 // import { marked } from "marked";
 // import glob from "glob";
@@ -33,14 +34,14 @@ export const buildConfig = {
 };
 
 fs.emptyDirSync(buildConfig.OUTPUT_FOLDER);
-const PAGES_REGEX = new RegExp(`^\\b${buildConfig.PAGES_FOLDER}\\b`);
+export const PAGES_REGEX = new RegExp(`^\\b${buildConfig.PAGES_FOLDER}\\b`);
 
 function relinkHyperlinks(root, baseFolder) {
   try {
     // Relink & parse hyperlinked files
     const hyperlinks = root.querySelectorAll('a[href!="#"]');
     hyperlinks.forEach((hyperlink) => {
-      const rawUrl = removeTrailingDots(hyperlink.getAttribute("href"));
+      const rawUrl = hyperlink.getAttribute("href");
       const assetUrl = resolvePath(baseFolder, rawUrl);
       if (rawUrl.startsWith("http")) return;
 
@@ -65,43 +66,6 @@ function relinkHyperlinks(root, baseFolder) {
   }
 }
 
-const isPagesFolder = (filePath) => {
-  return filePath.split(path.sep)[0] === buildConfig.PAGES_FOLDER;
-};
-
-const injectLiveReloadScript = (root) => {
-  const LIVE_RELOAD_SCRIPT = `
-  <script>
-    document.write('<script src="http://' + (location.host || 'localhost').split(':')[0] + ':35729/livereload.js?snipver=1"></' + 'script>')
-  </script>
-  `;
-  root.set_content(`
-    ${root.innerHTML}
-    ${LIVE_RELOAD_SCRIPT}
-  `);
-};
-
-function writeToPagesFolder(root, filePath) {
-  // remove pages folder
-  const finalFolder = filePath.replace(PAGES_REGEX, "");
-  ensureDirSync(
-    path.join(buildConfig.OUTPUT_FOLDER, path.dirname(finalFolder))
-  );
-
-  // change link to # if the link is the same page as current page
-  const selector = `a[href="${finalFolder.replace(
-    new RegExp(`\\${path.sep}`, "g"),
-    "/"
-  )}"]`;
-  const aLinks = root.querySelectorAll(selector);
-  aLinks.forEach((link) => link.setAttribute("href", "#"));
-
-  fs.writeFileSync(
-    path.join(buildConfig.OUTPUT_FOLDER, finalFolder),
-    root.toString()
-  );
-}
-
 function compile(inputFile = buildConfig.INPUT_FILE) {
   cache.put(inputFile, true);
   const fileName = path.basename(inputFile);
@@ -119,16 +83,8 @@ function compile(inputFile = buildConfig.INPUT_FILE) {
     relinkHyperlinks(root, buildConfig.BASE_FOLDER);
 
     injectLiveReloadScript(root);
-    // write to pages folder
-    if (isPagesFolder(filePath)) {
-      writeToPagesFolder(root, filePath);
-    } else {
-      // write index
-      fs.writeFileSync(
-        path.join(buildConfig.OUTPUT_FOLDER, fileName),
-        root.toString()
-      );
-    }
+    writeToOutput(root, filePath);
+
     logger.log(`DONE - ${fileName}`, "green");
   } catch (err) {
     // if (err.code == "ENOENT") {
@@ -144,15 +100,6 @@ compile(INPUT_FILE);
 
 export default compile;
 
-// const LIVE_RELOAD_SCRIPT = `
-// <script>
-//   document.write('<script src="http://' + (location.host || 'localhost').split(':')[0] + ':35729/livereload.js?snipver=1"></' + 'script>')
-// </script>
-// `;
-// root.set_content(`
-//   ${root.innerHTML}
-//   ${LIVE_RELOAD_SCRIPT}
-// `);
 // const contentIncludes = root.querySelectorAll("[data-include-content]");
 
 // contentIncludes.forEach((include) => {
