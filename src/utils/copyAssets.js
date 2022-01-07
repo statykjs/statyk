@@ -1,5 +1,6 @@
 import fs from "fs-extra";
 import path from "node:path";
+import { buildConfig } from "../build";
 import logger from "./logger";
 import resolvePath from "./resolvePath";
 
@@ -9,8 +10,8 @@ import resolvePath from "./resolvePath";
  */
 function copyAssets(from, to) {
   logger.primarySuccess("Copying Assets");
-  const inputPath = resolvePath(from, "static");
-  const outputPath = path.join(to, "static");
+  const inputPath = resolvePath(from, buildConfig.STATIC_FOLDER);
+  const outputPath = path.join(to, buildConfig.STATIC_FOLDER);
 
   fs.copySync(inputPath, outputPath);
 

@@ -4,7 +4,6 @@ import { parse } from "node-html-parser";
 import regexMatchAll from "./regexMatchAll";
 import runExpression from "./runExpression";
 import JSON from "json-normalize";
-import removeTrailingDots from "./removeTrailingDots";
 
 export const MUSTACHE_REGEX = /\\?\{\{(.+?)\}\}/gs;
 

@@ -3,10 +3,6 @@ import path from "node:path";
 import { parse } from "node-html-parser";
 import { cosmiconfigSync } from "cosmiconfig";
 import cache from "memory-cache";
-// import { marked } from "marked";
-// import glob from "glob";
-// import fm from "front-matter";
-// import { kebabCase } from "lodash-es";
 
 import compileTemplate from "./utils/compileTemplate";
 import copyAssets from "./utils/copyAssets";
@@ -14,16 +10,30 @@ import logger from "./utils/logger";
 import resolvePath from "./utils/resolvePath";
 import removeTrailingDots from "./utils/removeTrailingDots";
 
+// import { marked } from "marked";
+// import glob from "glob";
+// import fm from "front-matter";
+// import { kebabCase } from "lodash-es";
+
 const explorer = cosmiconfigSync("deadsimple");
 const { config } = explorer.load(".deadsimplerc");
 
-export const INPUT_FILE = path.resolve(config.input);
-export const BASE_FOLDER = path.dirname(config.input);
-export const PAGES_FOLDER = config.pagesFolder;
-export const OUTPUT_FOLDER = config.out;
+const INPUT_FILE = path.resolve(config.input);
+const BASE_FOLDER = path.dirname(config.input);
+const PAGES_FOLDER = config.pagesFolder || "pages";
+const OUTPUT_FOLDER = config.out || "dist";
+const STATIC_FOLDER = config.staticFolder || "static";
 
-fs.emptyDirSync(OUTPUT_FOLDER);
-const PAGES_REGEX = new RegExp(`^\\b${PAGES_FOLDER}\\b`);
+export const buildConfig = {
+  INPUT_FILE,
+  BASE_FOLDER,
+  PAGES_FOLDER,
+  OUTPUT_FOLDER,
+  STATIC_FOLDER,
+};
+
+fs.emptyDirSync(buildConfig.OUTPUT_FOLDER);
+const PAGES_REGEX = new RegExp(`^\\b${buildConfig.PAGES_FOLDER}\\b`);
 
 function relinkHyperlinks(root, baseFolder) {
   try {
@@ -56,7 +66,7 @@ function relinkHyperlinks(root, baseFolder) {
 }
 
 const isPagesFolder = (filePath) => {
-  return filePath.split(path.sep)[0] === PAGES_FOLDER;
+  return filePath.split(path.sep)[0] === buildConfig.PAGES_FOLDER;
 };
 
 const injectLiveReloadScript = (root) => {
@@ -74,7 +84,9 @@ const injectLiveReloadScript = (root) => {
 function writeToPagesFolder(root, filePath) {
   // remove pages folder
   const finalFolder = filePath.replace(PAGES_REGEX, "");
-  ensureDirSync(path.join(OUTPUT_FOLDER, path.dirname(finalFolder)));
+  ensureDirSync(
+    path.join(buildConfig.OUTPUT_FOLDER, path.dirname(finalFolder))
+  );
 
   // change link to # if the link is the same page as current page
   const selector = `a[href="${finalFolder.replace(
@@ -84,24 +96,27 @@ function writeToPagesFolder(root, filePath) {
   const aLinks = root.querySelectorAll(selector);
   aLinks.forEach((link) => link.setAttribute("href", "#"));
 
-  fs.writeFileSync(path.join(OUTPUT_FOLDER, finalFolder), root.toString());
+  fs.writeFileSync(
+    path.join(buildConfig.OUTPUT_FOLDER, finalFolder),
+    root.toString()
+  );
 }
 
-function compile(inputFile = INPUT_FILE) {
+function compile(inputFile = buildConfig.INPUT_FILE) {
   cache.put(inputFile, true);
   const fileName = path.basename(inputFile);
-  const filePath = path.relative(BASE_FOLDER, inputFile);
+  const filePath = path.relative(buildConfig.BASE_FOLDER, inputFile);
 
   try {
     const fileContent = fs.readFileSync(inputFile, { encoding: "utf-8" });
     const root = parse(fileContent);
 
-    copyAssets(BASE_FOLDER, OUTPUT_FOLDER);
+    copyAssets(buildConfig.BASE_FOLDER, buildConfig.OUTPUT_FOLDER);
 
     logger.log(`\nCompiling Template ${fileName}`, "magentaBright");
-    root.set_content(compileTemplate(root.innerHTML, BASE_FOLDER));
+    root.set_content(compileTemplate(root.innerHTML, buildConfig.BASE_FOLDER));
 
-    relinkHyperlinks(root, BASE_FOLDER);
+    relinkHyperlinks(root, buildConfig.BASE_FOLDER);
 
     injectLiveReloadScript(root);
     // write to pages folder
@@ -109,7 +124,10 @@ function compile(inputFile = INPUT_FILE) {
       writeToPagesFolder(root, filePath);
     } else {
       // write index
-      fs.writeFileSync(path.join(OUTPUT_FOLDER, fileName), root.toString());
+      fs.writeFileSync(
+        path.join(buildConfig.OUTPUT_FOLDER, fileName),
+        root.toString()
+      );
     }
     logger.log(`DONE - ${fileName}`, "green");
   } catch (err) {
@@ -139,7 +157,7 @@ export default compile;
 
 // contentIncludes.forEach((include) => {
 //   const url = include.getAttribute("data-include-content");
-//   const globUrls = glob.sync(resolvePath(OUTPUT_FOLDER, url));
+//   const globUrls = glob.sync(resolvePath(buildConfig.OUTPUT_FOLDER, url));
 
 //   globUrls.forEach((globUrl) => {
 //     let markdown = fs.readFileSync(globUrl, { encoding: "utf-8" });
@@ -153,7 +171,7 @@ export default compile;
 //       .querySelector("head")
 //       .setAttribute("data-prop-title", frontmatter.attributes.title);
 //     include.innerHTML = html;
-//     root.innerHTML = compileTemplate(root.innerHTML, OUTPUT_FOLDER);
+//     root.innerHTML = compileTemplate(root.innerHTML, buildConfig.OUTPUT_FOLDER);
 
 //     fs.ensureDirSync(path.dirname(file));
 //     fs.writeFileSync(file, root.toString());
