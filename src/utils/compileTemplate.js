@@ -4,6 +4,7 @@ import { parse } from "node-html-parser";
 import regexMatchAll from "./regexMatchAll";
 import runExpression from "./runExpression";
 import JSON from "json-normalize";
+import { merge } from "lodash-es";
 
 export const MUSTACHE_REGEX = /\\?\{\{(.+?)\}\}/gs;
 
@@ -31,6 +32,7 @@ function evaluateSlots(html, children) {
   const root = parse(html);
   const slots = root.querySelectorAll("slot");
   slots.forEach((slot) => {
+    if (children === "" && slot.innerHTML !== "") return;
     slot.replaceWith(children);
   });
   return root.innerHTML;
@@ -74,7 +76,7 @@ const compileTemplate = (html, baseFolder, vars = {}) => {
       compileTemplate(
         evaluateSlots(html, include.innerHTML),
         baseFolder,
-        include.attributes
+        merge(vars, include.attributes)
       ),
       include.attributes
     );
