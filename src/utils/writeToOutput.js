@@ -2,6 +2,11 @@ import path from "node:path";
 import fs from "fs-extra";
 import normalizePath from "./normalizePath";
 import { buildConfig, PAGES_REGEX } from "../build";
+import prettier from "prettier";
+
+const formatCode = (code) => {
+  return prettier.format(code, { parser: "html" });
+};
 
 /**
  * @param {HTMLElement} root
@@ -22,8 +27,8 @@ function writeToOutput(root, filePath) {
   aLinks.forEach((link) => link.setAttribute("href", "#"));
 
   fs.writeFileSync(
-    path.join(buildConfig.OUTPUT_FOLDER, finalFolder),
-    root.toString()
+    path.join(buildConfig.OUTPUT_FOLDER, finalFolder.replace(".md", ".html")),
+    formatCode(root.toString())
   );
 }
 

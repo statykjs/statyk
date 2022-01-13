@@ -1,17 +1,25 @@
 <include src="partials/layout.html">
-  <h2>Home Page</h2>
+  <include
+    src="partials/card.html"
+    title="hekki"
+    desc="Hi"
+    linkHref="#"
+    linkText="text-1"
+  />
 
-  <include 
-    src="cards.html" 
-    myProp="{{['hello', 'world']}}"
-  >
-    <p>
-      Slot content: 
-      {{
-        map(props.myProp, (value) => {
-          return `<p>${value}</p>`
-        })
-      }}
-    </p>
-  </include>
+  <div class="row">
+    {{ map([1, 2], v => `
+    <include
+      src="partials/card.html"
+      title="${v}"
+      desc="nice"
+      linkHref="#"
+      linkText="text-${v}"
+    />
+    `) }}
+  </div>
+
+  <include src="partials/counter.html" count="{{1}}" />
+  <include src="partials/counter.html" count="{{2}}" />
+  <include src="partials/counter.html" count="{{3}}" />
 </include>

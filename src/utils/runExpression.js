@@ -1,7 +1,7 @@
 import { NodeVM } from "vm2";
 import logger from "./logger";
 
-const isArrayStr = (str) => {
+export const isArrayStr = (str) => {
   try {
     const v = JSON.parse(str);
     if (Array.isArray(v)) return true;
@@ -9,6 +9,22 @@ const isArrayStr = (str) => {
   } catch (err) {
     return false;
   }
+};
+
+/**
+ * @param {Record<string, any>} obj
+ * @returns  {string}
+ */
+export const stringifyObject = (obj) => {
+  return Object.keys(obj)
+    .filter((key) => key !== "src")
+    .map((key) => {
+      const val = isArrayStr(obj[key])
+        ? obj[key]
+        : `"${obj[key].replace(/"/g, "")}"`;
+      return `${key}: ${val},`;
+    })
+    .join("\n");
 };
 
 /**
@@ -23,16 +39,7 @@ const runExpression = (js, globalVars = {}) => {
       },
     });
 
-    const p = Object.keys(globalVars)
-      .filter((key) => key !== "src")
-      .map((v) => {
-        return `${v}: ${
-          isArrayStr(globalVars[v])
-            ? globalVars[v]
-            : `"${globalVars[v].replace(/"/g, "")}"`
-        },`;
-      })
-      .join("\n");
+    const p = stringifyObject(globalVars);
 
     const utils = `
       const map = (arr, cb) => arr.map((i, a) => cb(i, a)).join('\\n');

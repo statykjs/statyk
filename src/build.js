@@ -10,11 +10,12 @@ import logger from "./utils/logger";
 import resolvePath from "./utils/resolvePath";
 import injectLiveReloadScript from "./utils/injectLiveReloadScript";
 import writeToOutput from "./utils/writeToOutput";
+import normalizePath from "./utils/normalizePath";
 
-// import { marked } from "marked";
-// import glob from "glob";
-// import fm from "front-matter";
-// import { kebabCase } from "lodash-es";
+import { marked } from "marked";
+import glob from "glob";
+import fm from "front-matter";
+import { kebabCase } from "lodash-es";
 
 const explorer = cosmiconfigSync("deadsimple");
 const { config } = explorer.load(".deadsimplerc");
@@ -58,7 +59,7 @@ function relinkHyperlinks(root, baseFolder) {
       }
 
       if (!cache.get(assetUrl)) {
-        compile(assetUrl);
+        // compile(assetUrl);
       }
     });
   } catch (err) {
@@ -66,20 +67,19 @@ function relinkHyperlinks(root, baseFolder) {
   }
 }
 
-function compile(inputFile = buildConfig.INPUT_FILE) {
+function compile(inputFile = buildConfig.INPUT_FILE, htmlContent) {
   cache.put(inputFile, true);
   const fileName = path.basename(inputFile);
   const filePath = path.relative(buildConfig.BASE_FOLDER, inputFile);
 
   try {
     const fileContent = fs.readFileSync(inputFile, { encoding: "utf-8" });
-    const root = parse(fileContent);
-
-    copyAssets(buildConfig.BASE_FOLDER, buildConfig.OUTPUT_FOLDER);
+    const root = parse(htmlContent ? htmlContent : fileContent);
 
     logger.log(`\nCompiling Template ${fileName}`, "magentaBright");
     root.set_content(compileTemplate(root.innerHTML, buildConfig.BASE_FOLDER));
 
+    copyAssets(buildConfig.BASE_FOLDER, buildConfig.OUTPUT_FOLDER);
     relinkHyperlinks(root, buildConfig.BASE_FOLDER);
 
     injectLiveReloadScript(root);
@@ -96,7 +96,27 @@ function compile(inputFile = buildConfig.INPUT_FILE) {
   }
 }
 
+function buildPagesFolder() {
+  const pagesFolder = resolvePath(
+    buildConfig.BASE_FOLDER,
+    buildConfig.PAGES_FOLDER
+  );
+  const globUrls = glob.sync(`${pagesFolder}/**/*.html`);
+  const globMd = glob.sync(`${pagesFolder}/**/*.md`);
+
+  globUrls.forEach((url) => {
+    compile(url);
+  });
+  globMd.forEach((url) => {
+    let markdown = fs.readFileSync(url, { encoding: "utf-8" });
+    const frontmatter = fm(markdown);
+    const html = marked.parse(frontmatter.body);
+    compile(url, html);
+  });
+}
+
 compile(INPUT_FILE);
+// buildPagesFolder();
 
 export default compile;
 

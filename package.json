@@ -6,6 +6,7 @@
   "type": "module",
   "scripts": {
     "build": "node --experimental-modules --experimental-specifier-resolution=node ./src/build.js",
+    "play": "node --experimental-modules --experimental-specifier-resolution=node ./src/playground.js",
     "watch:build": "nodemon --experimental-modules --experimental-specifier-resolution=node ./src/build.js",
     "dev": "node --experimental-modules --experimental-specifier-resolution=node ./src/watch.js"
   },
@@ -25,8 +26,11 @@
     "marked": "^4.0.8",
     "memory-cache": "^0.2.0",
     "node-html-parser": "^5.2.0",
+    "prettier": "^2.5.1",
     "serve-static": "^1.14.2",
+    "shortid": "^2.2.16",
     "source-map-support": "^0.5.21",
+    "uuid": "^8.3.2",
     "vm2": "^3.9.5"
   }
 }

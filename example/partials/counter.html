@@ -1,0 +1,25 @@
+<br />
+
+<span class="valign-wrapper center-align">
+  <button hashid="dec-btn" class="waves-effect waves-light btn">-</button>
+  <span hashid="count" class="badge">{{props.count}}</span>
+  <button hashid="inc-btn" class="waves-effect waves-light btn">+</button>
+</span>
+
+<br />
+
+<script>
+  let count = props.count;
+  let countElm = getElementByHashId("count");
+  let inc = getElementByHashId("inc-btn");
+  let dec = getElementByHashId("dec-btn");
+
+  inc.addEventListener("click", () => {
+    count++;
+    countElm.innerHTML = count;
+  });
+  dec.addEventListener("click", () => {
+    count--;
+    countElm.innerHTML = count;
+  });
+</script>
