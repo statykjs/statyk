@@ -1,4 +1,4 @@
-import fs, { ensureDirSync } from "fs-extra";
+import fs from "fs-extra";
 import path from "node:path";
 import { parse } from "node-html-parser";
 import { cosmiconfigSync } from "cosmiconfig";
@@ -10,12 +10,11 @@ import logger from "./utils/logger";
 import resolvePath from "./utils/resolvePath";
 import injectLiveReloadScript from "./utils/injectLiveReloadScript";
 import writeToOutput from "./utils/writeToOutput";
-import normalizePath from "./utils/normalizePath";
 
 import { marked } from "marked";
 import glob from "glob";
 import fm from "front-matter";
-import { kebabCase } from "lodash-es";
+import { scriptCache } from "./utils/instanceComponentScript";
 
 const explorer = cosmiconfigSync("deadsimple");
 const { config } = explorer.load(".deadsimplerc");
@@ -85,6 +84,10 @@ function compile(inputFile = buildConfig.INPUT_FILE, htmlContent) {
     injectLiveReloadScript(root);
     writeToOutput(root, filePath);
 
+    // remove script cache
+    Object.keys(scriptCache).forEach((key) => {
+      delete scriptCache[key];
+    });
     logger.log(`DONE - ${fileName}`, "green");
   } catch (err) {
     // if (err.code == "ENOENT") {
@@ -107,16 +110,29 @@ function buildPagesFolder() {
   globUrls.forEach((url) => {
     compile(url);
   });
+
   globMd.forEach((url) => {
+    let stack = [];
     let markdown = fs.readFileSync(url, { encoding: "utf-8" });
     const frontmatter = fm(markdown);
-    const html = marked.parse(frontmatter.body);
+    marked.use({
+      walkTokens(token) {
+        // skip content in mustaches
+        if (token.raw.includes("{{")) stack.push("{{");
+        if (token.raw.includes("}}")) stack.pop()
+        if (stack.length > 0) {
+          token.type = 'text'
+          token.text = token.raw
+        }
+      },
+    });
+    const html = marked(frontmatter.body);
     compile(url, html);
   });
 }
 
 compile(INPUT_FILE);
-// buildPagesFolder();
+buildPagesFolder();
 
 export default compile;
 

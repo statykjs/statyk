@@ -3,9 +3,22 @@ import path from "node:path";
 import regexMatchAll from "./regexMatchAll";
 import shortid from "shortid";
 import { stringifyObject } from "./runExpression";
+import { snakeCase } from "lodash-es";
 
 export const scriptCache = {};
 const GET_ELEMENT_REGEX = /getElementByHashId\("(.*)"\)/gm;
+
+/**
+ * @param {string} content
+ * @param {id} id
+ * @returns
+ */
+const convertGetElementByHashId = (content, id) => {
+  return content.replace(
+    `getElementByHashId("${id}")`,
+    `document.getElementById(__id + "-${id}")`
+  );
+};
 
 const instanceComponentScript = (html, fileName, props) => {
   const root = parse(html);
@@ -17,6 +30,7 @@ const instanceComponentScript = (html, fileName, props) => {
   const scripts = root.querySelectorAll("script");
 
   scripts.forEach((script) => {
+    if (script?.getAttribute("src")?.startsWith("http")) return;
     const sid = shortid.generate();
     const elementIds = root.querySelectorAll("[hashid]");
 
@@ -33,13 +47,13 @@ const instanceComponentScript = (html, fileName, props) => {
       element.setAttribute("id", newId);
       element.removeAttribute("hashid");
 
-      script.textContent = script.textContent.replace(
-        `getElementByHashId("${idName}")`,
-        `document.getElementById(__id + "-${idName}")`
+      script.textContent = convertGetElementByHashId(
+        script.textContent,
+        idName
       );
     });
 
-    const fnName = componentName;
+    const fnName = snakeCase(componentName);
     script.textContent = `
       function ${fnName}(props) {
         const __id = props.__id;

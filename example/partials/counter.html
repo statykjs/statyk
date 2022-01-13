@@ -1,25 +1,23 @@
-<br />
-
-<span class="valign-wrapper center-align">
-  <button hashid="dec-btn" class="waves-effect waves-light btn">-</button>
-  <span hashid="count" class="badge">{{props.count}}</span>
-  <button hashid="inc-btn" class="waves-effect waves-light btn">+</button>
+<span>
+  <button hashid="dec-btn">-</button>
+  <span hashid="count">{{props.count}}</span>
+  <button hashid="inc-btn">+</button>
 </span>
 
-<br />
-
 <script>
-  let count = props.count;
-  let countElm = getElementByHashId("count");
-  let inc = getElementByHashId("inc-btn");
-  let dec = getElementByHashId("dec-btn");
+  let count = parseInt(props.count || 0);
+  const step = parseInt(props.step || 1);
+  console.log(props, count, step);
+  const countElm = getElementByHashId("count");
+  const incEl = getElementByHashId("inc-btn");
+  const decEl = getElementByHashId("dec-btn");
 
-  inc.addEventListener("click", () => {
-    count++;
+  incEl.addEventListener("click", () => {
+    count += step;
     countElm.innerHTML = count;
   });
-  dec.addEventListener("click", () => {
-    count--;
+  decEl.addEventListener("click", () => {
+    count -= step;
     countElm.innerHTML = count;
   });
 </script>
