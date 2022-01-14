@@ -1,7 +1,16 @@
 {
-  "name": "deadsimple",
-  "version": "1.0.0",
-  "description": "",
+  "name": "statyk",
+  "private": false,
+  "version": "0.0.1",
+  "description": "A dead simple statyk site generator",
+  "homepage": "https://github.com/statykjs/statyk",
+  "bugs": {
+    "url": "https://github.com/statykjs/statyk/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/statykjs/statyk/issues"
+  },
   "main": "index.js",
   "type": "module",
   "scripts": {
@@ -10,7 +19,7 @@
     "watch:build": "nodemon --experimental-modules --experimental-specifier-resolution=node ./src/commands/build.js",
     "dev": "node --experimental-modules --experimental-specifier-resolution=node ./src/commands/watch.js"
   },
-  "author": "",
+  "author": "Anurag Hazra <hazru.anurag@gmail.com>",
   "license": "MIT",
   "dependencies": {
     "chalk": "^5.0.0",

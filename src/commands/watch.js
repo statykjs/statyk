@@ -1,10 +1,8 @@
 import module from "module";
 import path from "node:path";
-import fs from "fs-extra";
 import cache from "memory-cache";
 import livereload from "livereload";
 
-import compile from "../core/compile";
 import logger from "../utils/logger";
 import removeTrailingDots from "../utils/removeTrailingDots";
 import { getBuildInfo } from "../utils/getBuildInfo";
@@ -52,7 +50,7 @@ const watcher = () => {
     connect()
       .use(serveStatic(buildInfo.OUTPUT_FOLDER))
       .listen(PORT, function () {
-        console.log(`Live server running on http://localhost:${PORT}`);
+        console.log(`[statyk]: Server running on http://localhost:${PORT}`);
       });
 
     const lrserver = livereload.createServer();
