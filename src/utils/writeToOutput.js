@@ -1,7 +1,6 @@
 import path from "node:path";
 import fs from "fs-extra";
 import normalizePath from "./normalizePath";
-import { buildConfig, PAGES_REGEX } from "../commands/build";
 import prettier from "prettier";
 
 const formatCode = (code) => {
@@ -11,12 +10,15 @@ const formatCode = (code) => {
 /**
  * @param {HTMLElement} root
  * @param {string} filePath
+ * @param {import("./getBuildInfo").BuildInfo} buildInfo
  */
-function writeToOutput(root, filePath) {
+function writeToOutput(root, filePath, buildInfo) {
+  const pagesRegex = new RegExp(`^\\b${buildInfo.PAGES_FOLDER}\\b`);
+
   // remove pages folder
-  const finalFolder = filePath.replace(PAGES_REGEX, "");
+  const finalFolder = filePath.replace(pagesRegex, "");
   fs.ensureDirSync(
-    path.join(buildConfig.OUTPUT_FOLDER, path.dirname(finalFolder))
+    path.join(buildInfo.OUTPUT_FOLDER, path.dirname(finalFolder))
   );
 
   // change link to # if the link is the same page as current page
@@ -27,7 +29,7 @@ function writeToOutput(root, filePath) {
   aLinks.forEach((link) => link.setAttribute("href", "#"));
 
   fs.writeFileSync(
-    path.join(buildConfig.OUTPUT_FOLDER, finalFolder.replace(".md", ".html")),
+    path.join(buildInfo.OUTPUT_FOLDER, finalFolder.replace(".md", ".html")),
     formatCode(root.toString())
   );
 }

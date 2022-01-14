@@ -1,6 +1,6 @@
 import fs from "fs-extra";
 import path from "node:path";
-import { buildConfig } from "../commands/build";
+import { getBuildInfo } from "./getBuildInfo";
 import logger from "./logger";
 import resolvePath from "./resolvePath";
 
@@ -9,11 +9,18 @@ import resolvePath from "./resolvePath";
  * @param {string} to
  */
 function copyAssets(from, to) {
-  logger.primarySuccess("Copying Assets");
-  const inputPath = resolvePath(from, buildConfig.STATIC_FOLDER);
-  const outputPath = path.join(to, buildConfig.STATIC_FOLDER);
+  try {
+    const buildInfo = getBuildInfo();
+    logger.primarySuccess("Copying Assets");
+    const inputPath = resolvePath(from, buildInfo.STATIC_FOLDER);
+    const outputPath = path.join(to, buildInfo.STATIC_FOLDER);
 
-  fs.copySync(inputPath, outputPath);
+    fs.copySync(inputPath, outputPath);
+  } catch (err) {
+    if (err.code == "ENOENT") {
+      logger.error(`No static folder found`);
+    }
+  }
 
   // assets.forEach((asset) => {
   //   const assetType = ["LINK"].includes(asset.tagName) ? "href" : "src";

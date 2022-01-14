@@ -5,8 +5,10 @@ import livereload from "livereload";
 
 import logger from "./utils/logger";
 import removeTrailingDots from "./utils/removeTrailingDots";
-import compile, { buildConfig } from "./build";
+import compile from "./build";
+import { getBuildInfo } from "../utils/getBuildInfo";
 
+const buildConfig = getBuildInfo();
 const require = module.createRequire(import.meta.url);
 
 const isWatching = process.argv.includes("--watch");

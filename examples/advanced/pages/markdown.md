@@ -33,7 +33,7 @@
         <include 
           src="partials/github-user.html" 
           username="${username}" 
-        >
+        />
       `
     })
   }}

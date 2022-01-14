@@ -1,6 +1,7 @@
-import { buildConfig } from "./build";
+import { getBuildInfo } from "../utils/getBuildInfo";
 import compileTemplate from "./utils/compileTemplate";
 
+const buildConfig = getBuildInfo();
 const output = compileTemplate(
   `
   <div class="row">
