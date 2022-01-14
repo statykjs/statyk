@@ -3,6 +3,10 @@ import fs from "fs-extra";
 import normalizePath from "./normalizePath";
 import prettier from "prettier";
 
+/**
+ * @param {string} code
+ * @returns {string}
+ */
 const formatCode = (code) => {
   return prettier.format(code, { parser: "html" });
 };

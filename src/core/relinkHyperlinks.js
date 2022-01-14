@@ -1,19 +1,18 @@
 import resolvePath from "../utils/resolvePath";
-import cache from "memory-cache";
+import compile from "./compile";
 
 /**
  * @param {HTMLElement} root
- * @param {string} baseFolder
- * @param {string} pagesFolder
+ * @param {import("../utils/getBuildInfo").BuildInfo} buildInfo
  */
-function relinkHyperlinks(root, baseFolder, pagesFolder) {
-  const pagesRegex = new RegExp(`^\\b${pagesFolder}\\b`);
+function relinkHyperlinks(root, buildInfo) {
+  const pagesRegex = new RegExp(`^\\b${buildInfo.PAGES_FOLDER}\\b`);
   try {
     // Relink & parse hyperlinked files
     const hyperlinks = root.querySelectorAll('a[href!="#"]');
     hyperlinks.forEach((hyperlink) => {
       const rawUrl = hyperlink.getAttribute("href");
-      const assetUrl = resolvePath(baseFolder, rawUrl);
+      const assetUrl = resolvePath(buildInfo.BASE_FOLDER, rawUrl);
       if (rawUrl.startsWith("http")) return;
 
       const href = `/${rawUrl.replace(pagesRegex, "").replace("/", "")}`;
@@ -28,8 +27,11 @@ function relinkHyperlinks(root, baseFolder, pagesFolder) {
         );
       }
 
-      if (!cache.get(assetUrl)) {
-        // compile(assetUrl);
+      // !coreRuntime.compileCache.get(assetUrl)
+      // disable automatic link compiling for now
+      if (false) {
+        console.log(assetUrl);
+        compile(assetUrl, buildInfo);
       }
     });
   } catch (err) {

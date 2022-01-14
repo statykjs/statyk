@@ -1,13 +1,13 @@
-import path from "node:path";
 import fs from "node:fs";
+import path from "node:path";
 import { parse } from "node-html-parser";
-import regexMatchAll from "../utils/regexMatchAll";
-import runExpression from "./runExpression";
-import JSON from "json-normalize";
 import { merge } from "lodash-es";
-import instanceComponentScript, {
-  scriptCache,
-} from "./instanceComponentScript";
+import nJSON from "json-normalize";
+
+import { coreRuntime } from "./compile";
+import runExpression from "./runExpression";
+import regexMatchAll from "../utils/regexMatchAll";
+import instanceComponentScript from "./instanceComponentScript";
 
 export const MUSTACHE_REGEX = /\\?\{\{(.+?)\}\}/gs;
 
@@ -47,20 +47,29 @@ export function evaluateSlots(html, children) {
  * @param {HTMLElement} root
  */
 function appendScripts(root) {
-  Object.keys(scriptCache).forEach((scriptKey) => {
-    if (!scriptCache[scriptKey]) return;
-    const body = root.querySelector("body");
-    // only append to body, if the script is not already appended
-    if (!body || scriptCache[scriptKey].appended) return;
+  const scriptCache = coreRuntime.caches.scripts;
 
-    const script = scriptCache[scriptKey].content;
-    const instances = scriptCache[scriptKey].instances.join("\n");
+  scriptCache.keys().forEach((scriptKey) => {
+    const value = scriptCache.get(scriptKey);
+    if (!value) return;
+
+    // only append to body, if the script is not already appended
+    const body = root.querySelector("body");
+    if (!body || value.appended) return;
+
+    const script = value.content;
+    const instances = value.instances.join("\n");
     body.insertAdjacentHTML(
       "afterend",
       `<script>${script}${instances}</script>`
     );
-    scriptCache[scriptKey].appended = true;
-    scriptCache[scriptKey].el.remove();
+
+    value.el.remove();
+    scriptCache.put(scriptKey, {
+      ...value,
+      appended: true,
+      el: null,
+    });
   });
 }
 
@@ -72,13 +81,19 @@ function evaluateMustachesInProps(attributes, vars) {
   let props = [];
   Object.keys(attributes).map((attr) => {
     regexMatchAll(MUSTACHE_REGEX, attributes[attr], (match) => {
-      const value = JSON.normalizeSync(runExpression(match[1], vars));
+      const value = nJSON.normalizeSync(runExpression(match[1], vars));
       props.push({ attr, value });
     });
   });
   return props;
 }
 
+/**
+ * Not in use
+ * @param {string} html
+ * @param {string} baseFolder
+ * @returns {string}
+ */
 const resolveIncludes = (html, baseFolder) => {
   const root = parse(html);
 
@@ -97,6 +112,11 @@ const resolveIncludes = (html, baseFolder) => {
   return root.innerHTML;
 };
 
+/**
+ * finds and returns all <include /> elements inside mustaches
+ * @param {string} html
+ * @returns {HTMLElement[]}
+ */
 const findIncludesInMustaches = (html) => {
   let includes = [];
   regexMatchAll(MUSTACHE_REGEX, html, (match) => {

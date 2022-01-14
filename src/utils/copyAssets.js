@@ -21,29 +21,6 @@ function copyAssets(from, to) {
       logger.error(`No static folder found`);
     }
   }
-
-  // assets.forEach((asset) => {
-  //   const assetType = ["LINK"].includes(asset.tagName) ? "href" : "src";
-  //   const rawUrl = asset.attributes[assetType].replace(/^(?:\.\.\/)+/, "");
-  //   if (rawUrl.startsWith("http") || rawUrl.startsWith("#")) {
-  //     return;
-  //   }
-  //   const assetUrl = resolvePath(baseFolder, rawUrl);
-  //   const outputUrl = path.join("dist", rawUrl);
-  //   const outputFolder = path.dirname(outputUrl);
-  //   try {
-  //     if (!fs.existsSync(outputFolder)) {
-  //       logger.warn(" - Folder does not exists " + outputFolder);
-  //       mkdirRecursive(outputFolder);
-  //     }
-
-  //     fs.copyFileSync(assetUrl, outputUrl);
-
-  //     asset.setAttribute(assetType, `./${rawUrl}`);
-  //   } catch (err) {
-  //     throw err;
-  //   }
-  // });
 }
 
 export default copyAssets;

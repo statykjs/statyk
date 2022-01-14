@@ -19,6 +19,10 @@
     `) }}
   </div>
 
+  <include src="partials/counter.html" count="99" />
+  <include src="partials/counter.html" count="99" />
+
+
   {{ map([...Array(3).keys()], v => `
   <include src="partials/counter.html" count="${v}" />
   `) }}

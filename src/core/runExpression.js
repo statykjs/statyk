@@ -1,6 +1,10 @@
 import { NodeVM } from "vm2";
 import logger from "../utils/logger";
 
+/**
+ * @param {string} str
+ * @returns {boolean}
+ */
 export const isArrayStr = (str) => {
   try {
     const v = JSON.parse(str);
@@ -29,6 +33,7 @@ export const stringifyObject = (obj) => {
 
 /**
  * @param {string} js
+ * @param {Record<string, any>} globalVars
  * @returns {string}
  */
 const runExpression = (js, globalVars = {}) => {
@@ -39,21 +44,18 @@ const runExpression = (js, globalVars = {}) => {
       },
     });
 
-    const p = stringifyObject(globalVars);
+    const stringProps = stringifyObject(globalVars);
 
     const utils = `
       const map = (arr, cb) => arr.map((i, a) => cb(i, a)).join('\\n');
     `;
 
-    const props = `
+    const code = `
       ${utils}
       const props = {
-        ${p}
+        ${stringProps}
       };
-    `;
 
-    const code = `
-      ${props}
       module.exports = ${js};
     `;
     return vm.run(code);

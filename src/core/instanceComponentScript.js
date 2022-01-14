@@ -1,17 +1,18 @@
-import { parse } from "node-html-parser";
 import path from "node:path";
-import regexMatchAll from "../utils/regexMatchAll";
 import shortid from "shortid";
-import { stringifyObject } from "./runExpression";
 import { snakeCase } from "lodash-es";
+import { parse } from "node-html-parser";
 
-export const scriptCache = {};
+import regexMatchAll from "../utils/regexMatchAll";
+import { stringifyObject } from "./runExpression";
+import { coreRuntime } from "./compile";
+
 const GET_ELEMENT_REGEX = /getElementByHashId\("(.*)"\)/gm;
 
 /**
  * @param {string} content
  * @param {id} id
- * @returns
+ * @returns {string}
  */
 const convertGetElementByHashId = (content, id) => {
   return content.replace(
@@ -20,6 +21,13 @@ const convertGetElementByHashId = (content, id) => {
   );
 };
 
+/**
+ * Parses script tags and instantiates component instances
+ * @param {string} html
+ * @param {string} fileName
+ * @param {Record<string, any>} props
+ * @returns
+ */
 const instanceComponentScript = (html, fileName, props) => {
   const root = parse(html);
   const p = stringifyObject(props);
@@ -61,17 +69,16 @@ const instanceComponentScript = (html, fileName, props) => {
       };
     `;
 
-    scriptCache[fnName] = {
-      ...scriptCache[fnName],
+    const scriptCache = coreRuntime.caches.scripts.get(fnName);
+    coreRuntime.caches.scripts.put(fnName, {
+      ...scriptCache,
       el: script,
       content: script.textContent,
       instances: [
-        ...(scriptCache[fnName]?.instances || []),
-        `${fnName}({
-          __id: "${sid}", ${p}
-        });`,
+        ...(scriptCache?.instances || []),
+        `${fnName}({ __id: "${sid}", ${p}});`,
       ],
-    };
+    });
 
     script.remove();
   });
