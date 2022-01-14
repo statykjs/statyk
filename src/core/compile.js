@@ -42,7 +42,7 @@ function compile(input, buildInfo, htmlContent) {
     Object.keys(scriptCache).forEach((key) => {
       delete scriptCache[key];
     });
-    logger.log(`DONE - ${fileName}`, "green");
+    logger.log(`DONE - ${fileName}`, "gray");
   } catch (err) {
     // if (err.code == "ENOENT") {
     //   logger.error(`No such file: "${filePath}"`);

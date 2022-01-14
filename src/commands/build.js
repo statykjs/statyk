@@ -13,6 +13,7 @@ function build() {
 
 build();
 
+export default build;
 // const contentIncludes = root.querySelectorAll("[data-include-content]");
 
 // contentIncludes.forEach((include) => {

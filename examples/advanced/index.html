@@ -8,7 +8,7 @@
   />
 
   <div class="row">
-    {{ map([1, 2], v => `
+    {{ map([1, 2, 3, 4], v => `
     <include
       src="partials/card.html"
       title="${v}"
@@ -19,7 +19,7 @@
     `) }}
   </div>
 
-  <include src="partials/counter.html" count="{{1}}" />
-  <include src="partials/counter.html" count="{{2}}" />
-  <include src="partials/counter.html" count="{{3}}" />
+  {{ map([...Array(3).keys()], v => `
+  <include src="partials/counter.html" count="${v}" />
+  `) }}
 </include>

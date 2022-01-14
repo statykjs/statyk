@@ -1,27 +1,30 @@
 import module from "module";
 import path from "node:path";
+import fs from "fs-extra";
 import cache from "memory-cache";
 import livereload from "livereload";
 
-import logger from "./utils/logger";
-import removeTrailingDots from "./utils/removeTrailingDots";
-import compile from "./build";
+import compile from "../core/compile";
+import logger from "../utils/logger";
+import removeTrailingDots from "../utils/removeTrailingDots";
 import { getBuildInfo } from "../utils/getBuildInfo";
+import build from "./build";
 
-const buildConfig = getBuildInfo();
 const require = module.createRequire(import.meta.url);
 
-const isWatching = process.argv.includes("--watch");
-
 const watcher = () => {
-  if (!buildConfig.OUTPUT_FOLDER.startsWith("./")) {
+  const buildInfo = getBuildInfo();
+
+  const isWatching = process.argv.includes("--watch");
+
+  if (!buildInfo.OUTPUT_FOLDER.startsWith("./")) {
     logger.warn("Make sure that output folder starts with ./");
     process.exit(1);
   }
 
   const task = () => {
     cache.clear();
-    compile(buildConfig.INPUT_FILE);
+    build();
   };
 
   task();
@@ -32,9 +35,9 @@ const watcher = () => {
     const serveStatic = require("serve-static");
 
     const removeTrailingSlash = (path) => path.replace(/\/$/, "");
-    const watchRoot = removeTrailingSlash(buildConfig.BASE_FOLDER);
+    const watchRoot = removeTrailingSlash(buildInfo.BASE_FOLDER);
     const ignored = removeTrailingDots(
-      removeTrailingSlash(buildConfig.OUTPUT_FOLDER)
+      removeTrailingSlash(buildInfo.OUTPUT_FOLDER)
     );
 
     const watcher = chokidar.watch(watchRoot, {
@@ -47,13 +50,13 @@ const watcher = () => {
 
     const PORT = 4000;
     connect()
-      .use(serveStatic(buildConfig.OUTPUT_FOLDER))
+      .use(serveStatic(buildInfo.OUTPUT_FOLDER))
       .listen(PORT, function () {
         console.log(`Live server running on http://localhost:${PORT}`);
       });
 
     const lrserver = livereload.createServer();
-    lrserver.watch(path.join(process.cwd(), buildConfig.OUTPUT_FOLDER));
+    lrserver.watch(path.join(process.cwd(), buildInfo.OUTPUT_FOLDER));
   }
 };
 

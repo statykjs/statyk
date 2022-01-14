@@ -11,7 +11,7 @@ import resolvePath from "./resolvePath";
 function copyAssets(from, to) {
   try {
     const buildInfo = getBuildInfo();
-    logger.primarySuccess("Copying Assets");
+    logger.log("Copying Assets", "gray");
     const inputPath = resolvePath(from, buildInfo.STATIC_FOLDER);
     const outputPath = path.join(to, buildInfo.STATIC_FOLDER);
 
