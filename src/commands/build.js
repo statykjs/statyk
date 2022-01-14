@@ -1,20 +1,20 @@
 import fs from "fs-extra";
 import path from "node:path";
-import { parse } from "node-html-parser";
-import { cosmiconfigSync } from "cosmiconfig";
 import cache from "memory-cache";
-
-import compileTemplate from "./utils/compileTemplate";
-import copyAssets from "./utils/copyAssets";
-import logger from "./utils/logger";
-import resolvePath from "./utils/resolvePath";
-import injectLiveReloadScript from "./utils/injectLiveReloadScript";
-import writeToOutput from "./utils/writeToOutput";
-
-import { marked } from "marked";
 import glob from "glob";
 import fm from "front-matter";
-import { scriptCache } from "./utils/instanceComponentScript";
+import { parse } from "node-html-parser";
+import { cosmiconfigSync } from "cosmiconfig";
+import { marked } from "marked";
+
+import compileTemplate from "../core/compileTemplate";
+import copyAssets from "../utils/copyAssets";
+import logger from "../utils/logger";
+import resolvePath from "../utils/resolvePath";
+import injectLiveReloadScript from "../utils/injectLiveReloadScript";
+import writeToOutput from "../utils/writeToOutput";
+
+import { scriptCache } from "../core/instanceComponentScript";
 
 const explorer = cosmiconfigSync("deadsimple");
 const { config } = explorer.load(".deadsimplerc");

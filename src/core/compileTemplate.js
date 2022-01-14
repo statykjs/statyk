@@ -1,7 +1,7 @@
 import path from "node:path";
 import fs from "node:fs";
 import { parse } from "node-html-parser";
-import regexMatchAll from "./regexMatchAll";
+import regexMatchAll from "../utils/regexMatchAll";
 import runExpression from "./runExpression";
 import JSON from "json-normalize";
 import { merge } from "lodash-es";

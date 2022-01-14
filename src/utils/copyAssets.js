@@ -1,6 +1,6 @@
 import fs from "fs-extra";
 import path from "node:path";
-import { buildConfig } from "../build";
+import { buildConfig } from "../commands/build";
 import logger from "./logger";
 import resolvePath from "./resolvePath";
 

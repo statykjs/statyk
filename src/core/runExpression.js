@@ -1,5 +1,5 @@
 import { NodeVM } from "vm2";
-import logger from "./logger";
+import logger from "../utils/logger";
 
 export const isArrayStr = (str) => {
   try {

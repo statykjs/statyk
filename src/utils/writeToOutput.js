@@ -1,7 +1,7 @@
 import path from "node:path";
 import fs from "fs-extra";
 import normalizePath from "./normalizePath";
-import { buildConfig, PAGES_REGEX } from "../build";
+import { buildConfig, PAGES_REGEX } from "../commands/build";
 import prettier from "prettier";
 
 const formatCode = (code) => {
