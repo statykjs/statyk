@@ -28,15 +28,9 @@
     "memory-cache": "^0.2.0",
     "node-html-parser": "^5.2.0",
     "prettier": "^2.5.1",
-    "remark": "^14.0.2",
-    "remark-gfm": "^3.0.1",
-    "remark-html": "^15.0.1",
-    "remark-rehype": "^10.1.0",
-    "remarkable": "^2.0.1",
     "serve-static": "^1.14.2",
     "shortid": "^2.2.16",
     "source-map-support": "^0.5.21",
-    "uuid": "^8.3.2",
     "vm2": "^3.9.5"
   }
 }
