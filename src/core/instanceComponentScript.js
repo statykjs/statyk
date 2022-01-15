@@ -7,6 +7,8 @@ import ts from "typescript";
 import { stringifyObject } from "./runExpression";
 import { coreRuntime } from "./compile";
 
+const HASH_ID_FUNC = "getElementByHashId";
+
 /**
  * @template {ts.Node} T
  * @param {string} sid
@@ -18,12 +20,13 @@ function transformGetByHashId(sid, allIdNames) {
     /** @type {ts.Visitor} */
     const visit = (node) => {
       if (ts.isCallExpression(node)) {
-        if (node.expression.escapedText === "getElementByHashId") {
+        if (node.expression.escapedText === HASH_ID_FUNC) {
           const arg = node.arguments[0];
           if (!arg) {
-            throw new Error(
-              "getElementByHashId expects 1 argument but got zero"
-            );
+            throw new Error(`${HASH_ID_FUNC} expects 1 argument but got zero`);
+          }
+          if (!ts.isStringLiteral(arg)) {
+            throw new TypeError(`${HASH_ID_FUNC} only accepts `);
           }
           const idName = arg.text;
           const element = allIdNames[idName];
@@ -49,9 +52,8 @@ function transformGetByHashId(sid, allIdNames) {
               ),
             ]
           );
-        } else {
-          return node;
         }
+        return node;
       }
       return ts.visitEachChild(node, (child) => visit(child), context);
     };
