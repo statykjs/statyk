@@ -35,34 +35,33 @@ function transformGetByHashId(sid, allIdNames) {
     /** @type {ts.Visitor} */
     const visit = (node) => {
       if (ts.isCallExpression(node)) {
-        if (node.expression.escapedText === HASH_ID_FUNC) {
-          const arg = node.arguments[0];
-          if (!arg) {
-            throw new Error(`${HASH_ID_FUNC} expects 1 argument but got zero`);
-          }
-          if (!ts.isStringLiteral(arg)) {
-            throw new TypeError(`${HASH_ID_FUNC} only accepts string`);
-          }
-          const idName = arg.text;
-          processHashElements(idName, sid, allIdNames);
+        if (node.expression.escapedText !== HASH_ID_FUNC) return node;
 
-          return ts.factory.updateCallExpression(
-            node,
-            ts.factory.createPropertyAccessExpression(
-              ts.factory.createIdentifier("document"),
-              "getElementById"
-            ),
-            [],
-            [
-              ts.factory.createBinaryExpression(
-                ts.factory.createIdentifier("__id"),
-                ts.SyntaxKind.PlusToken,
-                ts.factory.createStringLiteral(`-${idName}`)
-              ),
-            ]
-          );
+        const arg = node.arguments[0];
+        if (!arg) {
+          throw new Error(`${HASH_ID_FUNC} expects 1 argument but got zero`);
         }
-        return node;
+        if (!ts.isStringLiteral(arg)) {
+          throw new TypeError(`${HASH_ID_FUNC} only accepts string`);
+        }
+        const idName = arg.text;
+        processHashElements(idName, sid, allIdNames);
+
+        return ts.factory.updateCallExpression(
+          node,
+          ts.factory.createPropertyAccessExpression(
+            ts.factory.createIdentifier("document"),
+            "getElementById"
+          ),
+          [],
+          [
+            ts.factory.createBinaryExpression(
+              ts.factory.createIdentifier("__id"),
+              ts.SyntaxKind.PlusToken,
+              ts.factory.createStringLiteral(`-${idName}`)
+            ),
+          ]
+        );
       }
       return ts.visitEachChild(node, (child) => visit(child), context);
     };
