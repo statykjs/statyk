@@ -10,6 +10,21 @@ import { coreRuntime } from "./compile";
 const HASH_ID_FUNC = "getElementByHashId";
 
 /**
+ * @param {string} idName
+ * @param {string} sid
+ * @param {HTMLScriptElement[]} allIdNames
+ */
+function processHashElements(idName, sid, allIdNames) {
+  const element = allIdNames[idName];
+  const newId = `${sid}-${idName}`;
+  if (!element) {
+    throw new Error(`Cannot find element with hashid: ${idName}`);
+  }
+  element.setAttribute("id", newId);
+  element.removeAttribute("hashid");
+}
+
+/**
  * @template {ts.Node} T
  * @param {string} sid
  * @param {HTMLScriptElement[]} allIdNames
@@ -26,16 +41,10 @@ function transformGetByHashId(sid, allIdNames) {
             throw new Error(`${HASH_ID_FUNC} expects 1 argument but got zero`);
           }
           if (!ts.isStringLiteral(arg)) {
-            throw new TypeError(`${HASH_ID_FUNC} only accepts `);
+            throw new TypeError(`${HASH_ID_FUNC} only accepts string`);
           }
           const idName = arg.text;
-          const element = allIdNames[idName];
-          const newId = `${sid}-${idName}`;
-          if (!element) {
-            throw new Error(`Cannot find element with hashid: ${idName}`);
-          }
-          element.setAttribute("id", newId);
-          element.removeAttribute("hashid");
+          processHashElements(idName, sid, allIdNames);
 
           return ts.factory.updateCallExpression(
             node,
