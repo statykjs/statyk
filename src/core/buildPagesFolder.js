@@ -1,4 +1,4 @@
-import fs from "node:fs";
+// @ts-check
 import glob from "glob";
 import fm from "front-matter";
 import { marked } from "marked";
@@ -20,6 +20,7 @@ export function parseMarkdown(content) {
       if (token.raw.includes("}}")) stack.pop();
       if (stack.length > 0) {
         token.type = "text";
+        // @ts-ignore
         token.text = token.raw;
       }
     },
@@ -30,25 +31,17 @@ export function parseMarkdown(content) {
 }
 
 /**
- * @param {import("../utils/getBuildInfo").BuildInfo} buildInfo
+ * @param {import("./types").StatykContext} statykCtx
  */
-function buildPagesFolder(buildInfo) {
+async function buildPagesFolder(statykCtx) {
   const pagesFolder = resolvePath(
-    buildInfo.BASE_FOLDER,
-    buildInfo.PAGES_FOLDER
+    statykCtx.BASE_FOLDER,
+    statykCtx.PAGES_FOLDER
   );
-  const globUrls = glob.sync(`${pagesFolder}/**/*.html`);
-  const globMd = glob.sync(`${pagesFolder}/**/*.md`);
-
-  globUrls.forEach((url) => {
-    compile(url, buildInfo);
-  });
-
-  globMd.forEach((url) => {
-    let markdown = fs.readFileSync(url, { encoding: "utf-8" });
-    const html = parseMarkdown(markdown);
-    compile(url, buildInfo, html);
-  });
+  const globUrls = glob.sync(`${pagesFolder}/**/*.+(html|md)`);
+  for (const url of globUrls) {
+    await compile(url, statykCtx);
+  }
 }
 
 export default buildPagesFolder;

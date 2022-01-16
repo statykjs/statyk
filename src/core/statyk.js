@@ -5,47 +5,77 @@ import compile from "./compile";
 import buildPagesFolder from "./buildPagesFolder";
 import createWatchServer from "../utils/createWatchServer";
 
-/**
- * @typedef {{path: string, content: string,context: Record<string, any>}} PageNode
- */
+class PluginManager {
+  /**
+   *
+   * @param {import("./types").BuildInfo} buildInfo
+   */
+  constructor(buildInfo) {
+    /** @type {import("./types").PluginHook[]} */
+    this.plugins = [];
 
-/**
- * @typedef {{
- *  beforeBuild: () => void,
- *  afterBuild: () => void,
- *  beforeCreatePage: () => void,
- *  afterCreatepage: () => void
- * }} Plugin
- */
+    this.pluginHooks = [
+      "beforeBuild",
+      "afterBuild",
+      "beforeCreatePage",
+      "afterCreatePage",
+      "beforeStaticCopy",
+      "afterStaticCopy",
+    ];
+
+    this.buildInfo = buildInfo;
+  }
+
+  /**
+   * @template T
+   * @param {import("./types").PluginHookNames} name
+   * @param {T=} data
+   */
+  async runPlugins(name, data) {
+    for (const plugin of this.plugins) {
+      if (name.endsWith("Build")) {
+        await plugin?.[name]?.(this.buildInfo);
+        return;
+      }
+      await plugin?.[name]?.(data, this.buildInfo);
+    }
+  }
+}
 
 class Statyk {
   constructor() {
-    /** @type {import("../utils/getBuildInfo").BuildInfo} */
-    this.buildInfo = {};
-    /** @type {Plugin[]} */
-    this.plugins = [];
+    /** @type {import("./types").StatykContext} */
+    this.statykCtx = {};
+    /** @type {import("./types").PageNode[]} */
     this.pagesToCompile = [];
+
+    this.pluginManager = new PluginManager(this.statykCtx);
   }
 
   init(options) {
-    this.buildInfo = !options ? getBuildInfo() : processBuildConfig(options);
-    fs.emptyDirSync(this.buildInfo.OUTPUT_FOLDER);
+    const buildInfo = !options ? getBuildInfo() : processBuildConfig(options);
+    this.pluginManager.buildInfo = buildInfo;
+    this.statykCtx = {
+      ...buildInfo,
+      pluginManager: this.pluginManager,
+    };
+    fs.emptyDirSync(this.statykCtx.OUTPUT_FOLDER);
   }
 
   /**
-   * @param {PageNode} node
+   * @param {import("./types").PageNode} node
    */
   createPage({ path, context, content }) {
-    this.pagesToCompile.push([
-      pathjs.join(this.buildInfo.BASE_FOLDER, path),
-      this.buildInfo,
+    this.pagesToCompile.push({
+      path: pathjs.join(this.statykCtx.BASE_FOLDER, path),
+      buildInfo: this.statykCtx,
       content,
       context,
-    ]);
+    });
   }
 
   /**
-   * @param {PageNode[]} pages
+   * @param {import("./types").PageNode[]} pages
    */
   createPages(pages) {
     pages.forEach((page) => this.createPage(page));
@@ -53,30 +83,27 @@ class Statyk {
 
   /**
    *
-   * @param {Plugin} plugin
+   * @param {import("./types").PluginHook} plugin
    */
   use(plugin) {
-    this.plugins.push(plugin);
-  }
-
-  async runPlugins(name) {
-    for (const plugin of this.plugins) {
-      await plugin[name](this.buildInfo, this.pagesToCompile);
-    }
+    this.pluginManager.plugins.push(plugin);
   }
 
   async build() {
-    await this.runPlugins("beforeBuild");
+    await this.pluginManager.runPlugins("beforeBuild");
 
-    compile(this.buildInfo.INPUT_FILE, this.buildInfo);
-    this.pagesToCompile.forEach((page) => compile(...page));
-    buildPagesFolder(this.buildInfo);
+    await compile(this.statykCtx.INPUT_FILE, this.statykCtx);
 
-    await this.runPlugins("afterBuild");
+    for (const page of this.pagesToCompile) {
+      await compile(page.path, page.buildInfo, page.content, page.context);
+    }
+    buildPagesFolder(this.statykCtx);
+
+    await this.pluginManager.runPlugins("afterBuild");
   }
 
   serve() {
-    createWatchServer(this.buildInfo, () => {
+    createWatchServer(this.statykCtx, () => {
       this.pagesToCompile = [];
       this.build();
     });

@@ -1,3 +1,4 @@
+// @ts-check
 import fs from "fs-extra";
 import path from "node:path";
 import { Cache } from "memory-cache";
@@ -21,49 +22,62 @@ export const coreRuntime = {
 
 /**
  *
- * @param {import("../utils/getBuildInfo").BuildInfo} buildInfo
- * @param {string} content
+ * @param {string} input
+ * @param {import("./types").StatykContext} statykCtx
+ * @param {string=} content
+ * @param {Record<string, any>=} context
  */
-function compile(input, buildInfo, content, context = {}) {
-  const inputFile = path.resolve(input || buildInfo.INPUT_FILE);
+async function compile(input, statykCtx, content, context = {}) {
+  const inputFile = path.resolve(input || statykCtx.INPUT_FILE);
 
   coreRuntime.caches.compilation.put(inputFile, true);
   const fileName = path.basename(inputFile);
-  const filePath = path.relative(buildInfo.BASE_FOLDER, inputFile);
+  const filePath = path.relative(statykCtx.BASE_FOLDER, inputFile);
   const isMarkdown = filePath.endsWith(".md");
-
   try {
     let fileContent = content
       ? content
       : fs.readFileSync(inputFile, { encoding: "utf-8" });
 
     if (isMarkdown) {
-      fileContent = parseMarkdown(content);
+      fileContent = parseMarkdown(fileContent);
     }
+
     const root = parse(fileContent);
+
+    /** @type {import("./types").PluginPageNode} */
+    const pageNode = {
+      path: filePath,
+      isMarkdown,
+      fileName,
+      inputFile,
+      isCached: coreRuntime.caches.compilation.get(inputFile),
+      content: fileContent,
+      root,
+      context,
+    };
 
     logger.log(`>> Compiling Template ${fileName}`, "magentaBright");
     root.set_content(
-      compileTemplate(root.innerHTML, buildInfo.BASE_FOLDER, context)
+      compileTemplate(root.innerHTML, statykCtx.BASE_FOLDER, context)
     );
 
     if (coreRuntime.isFirstCompileRun) {
-      copyAssets(buildInfo.BASE_FOLDER, buildInfo.OUTPUT_FOLDER);
+      copyAssets(statykCtx.BASE_FOLDER, statykCtx.OUTPUT_FOLDER, statykCtx);
     }
-    relinkHyperlinks(root, buildInfo);
-
+    relinkHyperlinks(root, statykCtx);
     injectLiveReloadScript(root);
-    writeToOutput(root, filePath, buildInfo);
 
-    // remove script cache
-    coreRuntime.caches.scripts.clear();
+    await statykCtx.pluginManager.runPlugins("beforeCreatePage", pageNode);
+
+    writeToOutput(pageNode.root, pageNode.path, statykCtx);
+
+    coreRuntime.caches.scripts.clear(); // remove script cache
+
+    await statykCtx.pluginManager.runPlugins("afterCreatePage", pageNode);
+
     logger.log(`DONE - ${fileName}`, "gray");
   } catch (err) {
-    // if (err.code == "ENOENT") {
-    //   logger.error(`No such file: "${filePath}"`);
-    //   process.exit(1);
-    // }
-
     console.log(err);
   }
 
