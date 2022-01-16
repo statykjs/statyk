@@ -34,14 +34,13 @@ async function compile(input, statykCtx, content, context = {}) {
   const fileName = path.basename(inputFile);
   const filePath = path.relative(statykCtx.BASE_FOLDER, inputFile);
   const isMarkdown = filePath.endsWith(".md");
-
   try {
     let fileContent = content
       ? content
       : fs.readFileSync(inputFile, { encoding: "utf-8" });
 
     if (isMarkdown) {
-      fileContent = parseMarkdown(content);
+      fileContent = parseMarkdown(fileContent);
     }
 
     const root = parse(fileContent);

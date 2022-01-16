@@ -1,5 +1,4 @@
 // @ts-check
-import fs from "node:fs";
 import glob from "glob";
 import fm from "front-matter";
 import { marked } from "marked";
@@ -39,17 +38,9 @@ async function buildPagesFolder(statykCtx) {
     statykCtx.BASE_FOLDER,
     statykCtx.PAGES_FOLDER
   );
-  const globUrls = glob.sync(`${pagesFolder}/**/*.html`);
-  const globMd = glob.sync(`${pagesFolder}/**/*.md`);
-
+  const globUrls = glob.sync(`${pagesFolder}/**/*.+(html|md)`);
   for (const url of globUrls) {
     await compile(url, statykCtx);
-  }
-
-  for (const url of globMd) {
-    let markdown = fs.readFileSync(url, { encoding: "utf-8" });
-    const html = parseMarkdown(markdown);
-    await compile(url, statykCtx, html);
   }
 }
 
