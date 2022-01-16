@@ -24,7 +24,7 @@ async function sourceDevTo() {
 
       return {
         path: `pages/${article.slug}.md`,
-        content: `<include src="partials/layout.html" title={{props.title}}>${body_markdown}</include>`,
+        content: `<include src="partials/layout.html" title={{props.title}}>\n${body_markdown}\n</include>`,
         context: { title: article.title },
       };
     })
@@ -33,19 +33,24 @@ async function sourceDevTo() {
   statyk.createPages(pageNodes);
 }
 
+/** @type {import("./src/core/types").StatykPlugin} */
 function statykPlugin() {
   return {
-    beforeStaticCopy() {},
-    afterStaticCopy() {},
     beforeBuild: sourceDevTo,
     afterBuild: () => {
       console.log("Build done");
     },
-    beforeCreatePage: () => {},
-    afterCreatepage: () => {},
+    beforeCreatePage: async (node, buildInfo) => {
+      console.log(`beforeCreatePage for ${node.fileName}`);
+    },
+    afterCreatePage: async (node, buildInfo) => {
+      console.log(`afterCreatePage for ${node.fileName}`);
+    },
+    beforeStaticCopy() {},
+    afterStaticCopy() {},
   };
 }
 
 statyk.use(statykPlugin());
 
-statyk.serve();
+statyk.build();

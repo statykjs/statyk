@@ -5,7 +5,7 @@ const watcher = () => {
   const statyk = new Statyk();
   statyk.init();
 
-  const buildInfo = statyk.buildInfo;
+  const buildInfo = statyk.statykCtx;
   const isWatching = process.argv.includes("--watch");
 
   if (!buildInfo.OUTPUT_FOLDER.startsWith("./")) {

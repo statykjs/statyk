@@ -2,6 +2,7 @@ import path from "node:path";
 import fs from "fs-extra";
 import normalizePath from "./normalizePath";
 import prettier from "prettier";
+import { HTMLElement } from "node-html-parser";
 
 /**
  * @param {string} code
@@ -14,15 +15,15 @@ const formatCode = (code) => {
 /**
  * @param {HTMLElement} root
  * @param {string} filePath
- * @param {import("./getBuildInfo").BuildInfo} buildInfo
+ * @param {import("../core/types").StatykContext} statykCtx
  */
-function writeToOutput(root, filePath, buildInfo) {
-  const pagesRegex = new RegExp(`^\\b${buildInfo.PAGES_FOLDER}\\b`);
+function writeToOutput(root, filePath, statykCtx) {
+  const pagesRegex = new RegExp(`^\\b${statykCtx.PAGES_FOLDER}\\b`);
 
   // remove pages folder
   const finalFolder = filePath.replace(pagesRegex, "");
   fs.ensureDirSync(
-    path.join(buildInfo.OUTPUT_FOLDER, path.dirname(finalFolder))
+    path.join(statykCtx.OUTPUT_FOLDER, path.dirname(finalFolder))
   );
 
   // change link to # if the link is the same page as current page
@@ -33,7 +34,7 @@ function writeToOutput(root, filePath, buildInfo) {
   aLinks.forEach((link) => link.setAttribute("href", "#"));
 
   fs.writeFileSync(
-    path.join(buildInfo.OUTPUT_FOLDER, finalFolder.replace(".md", ".html")),
+    path.join(statykCtx.OUTPUT_FOLDER, finalFolder.replace(".md", ".html")),
     formatCode(root.toString())
   );
 }

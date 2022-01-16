@@ -1,6 +1,7 @@
+// @ts-check
 import fs from "node:fs";
 import path from "node:path";
-import { parse } from "node-html-parser";
+import { HTMLElement, parse } from "node-html-parser";
 import { merge } from "lodash-es";
 import nJSON from "json-normalize";
 
@@ -15,7 +16,7 @@ export const MUSTACHE_REGEX = /\\?\{\{(.+?)\}\}/gs;
  * evaluate mustache in html template
  * @param {string} html
  * @param {Record<string, string>} attrs
- * @returns {{ html: string, includes: HTMLElement[] }}
+ * @returns {string}
  */
 function evaluateMustaches(html, attrs) {
   regexMatchAll(MUSTACHE_REGEX, html, (match) => {
@@ -74,7 +75,7 @@ function appendScripts(root) {
 }
 
 /**
- * @param {import("node-html-parser/dist/nodes/html").Attributes} element
+ * @param {import("node-html-parser/dist/nodes/html").Attributes} attributes
  * @param {Record<string, any>} vars
  */
 function evaluateMustachesInProps(attributes, vars) {
@@ -106,7 +107,7 @@ const resolveIncludes = (html, baseFolder) => {
 
     const finalHtml = resolveIncludes(html, baseFolder);
 
-    include.innerHTML = parse(evaluateSlots(finalHtml, include.innerHTML));
+    include.innerHTML = evaluateSlots(finalHtml, include.innerHTML);
   });
 
   return root.innerHTML;
@@ -176,7 +177,7 @@ const compileTemplate = (html, baseFolder, vars = {}) => {
             baseFolder,
             mergedProps
           ).innerHTML,
-          include.innerHTML
+          mergedProps
         )
       )
     );

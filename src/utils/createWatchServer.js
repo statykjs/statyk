@@ -10,14 +10,14 @@ const connect = require("connect");
 const serveStatic = require("serve-static");
 
 /**
- * @param {import("../utils/getBuildInfo").BuildInfo} buildInfo
+ * @param {import("../core/types").StatykContext} statykCtx
  * @param {(path: string, stats?: Stats) => void} task
  */
-function createWatchServer(buildInfo, task) {
+function createWatchServer(statykCtx, task) {
   const removeTrailingSlash = (path) => path.replace(/\/$/, "");
-  const watchRoot = removeTrailingSlash(buildInfo.BASE_FOLDER);
+  const watchRoot = removeTrailingSlash(statykCtx.BASE_FOLDER);
   const ignored = removeTrailingDots(
-    removeTrailingSlash(buildInfo.OUTPUT_FOLDER)
+    removeTrailingSlash(statykCtx.OUTPUT_FOLDER)
   );
 
   task();
@@ -31,13 +31,13 @@ function createWatchServer(buildInfo, task) {
 
   const PORT = 4000;
   connect()
-    .use(serveStatic(buildInfo.OUTPUT_FOLDER))
+    .use(serveStatic(statykCtx.OUTPUT_FOLDER))
     .listen(PORT, function () {
       console.log(`[statyk]: Server running on http://localhost:${PORT}`);
     });
 
   const lrserver = livereload.createServer();
-  lrserver.watch(path.join(process.cwd(), buildInfo.OUTPUT_FOLDER));
+  lrserver.watch(path.join(process.cwd(), statykCtx.OUTPUT_FOLDER));
 }
 
 export default createWatchServer;
