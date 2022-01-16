@@ -1,12 +1,11 @@
-import cache from "memory-cache";
-
 import logger from "../utils/logger";
-import { getBuildInfo } from "../utils/getBuildInfo";
-import build from "./build";
+import Statyk from "../core/statyk";
 
 const watcher = () => {
-  const buildInfo = getBuildInfo();
+  const statyk = new Statyk();
+  statyk.init();
 
+  const buildInfo = statyk.buildInfo;
   const isWatching = process.argv.includes("--watch");
 
   if (!buildInfo.OUTPUT_FOLDER.startsWith("./")) {
@@ -14,15 +13,8 @@ const watcher = () => {
     process.exit(1);
   }
 
-  const task = () => {
-    cache.clear();
-    build();
-  };
-
-  task();
-
   if (isWatching) {
-    runServer(buildInfo, task);
+    statyk.serve();
   }
 };
 

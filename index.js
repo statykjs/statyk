@@ -4,7 +4,7 @@ import { take } from "lodash-es";
 
 const statyk = new Statyk();
 
-statyk.config({
+statyk.init({
   out: "./dist",
   input: "./examples/simple/index.html",
   pagesFolder: "pages",
@@ -35,6 +35,8 @@ async function sourceDevTo() {
 
 function statykPlugin() {
   return {
+    beforeStaticCopy() {},
+    afterStaticCopy() {},
     beforeBuild: sourceDevTo,
     afterBuild: () => {
       console.log("Build done");

@@ -1,6 +1,6 @@
 import fs from "fs-extra";
 import pathjs from "node:path";
-import { processBuildConfig } from "../utils/getBuildInfo";
+import { getBuildInfo, processBuildConfig } from "../utils/getBuildInfo";
 import compile from "./compile";
 import buildPagesFolder from "./buildPagesFolder";
 import createWatchServer from "../utils/createWatchServer";
@@ -27,8 +27,8 @@ class Statyk {
     this.pagesToCompile = [];
   }
 
-  config(options) {
-    this.buildInfo = processBuildConfig(options);
+  init(options) {
+    this.buildInfo = !options ? getBuildInfo() : processBuildConfig(options);
     fs.emptyDirSync(this.buildInfo.OUTPUT_FOLDER);
   }
 
