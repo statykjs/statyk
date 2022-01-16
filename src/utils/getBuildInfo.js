@@ -1,10 +1,10 @@
 import path from "node:path";
 import { cosmiconfigSync } from "cosmiconfig";
 
-function getBuildInfo() {
-  const explorer = cosmiconfigSync("deadsimple");
-  const { config } = explorer.load(".deadsimplerc");
-
+/**
+ * @param {Record<string, any>} config
+ */
+function processBuildConfig(config) {
   /** @type {string} */
   const INPUT_FILE = config.input;
   /** @type {string} */
@@ -27,8 +27,15 @@ function getBuildInfo() {
   return buildInfo;
 }
 
+function getBuildInfo() {
+  const explorer = cosmiconfigSync("deadsimple");
+  const { config } = explorer.load(".deadsimplerc");
+
+  return processBuildConfig(config);
+}
+
 /**
  * @typedef {ReturnType<getBuildInfo>} BuildInfo
  */
 
-export { getBuildInfo };
+export { getBuildInfo, processBuildConfig };

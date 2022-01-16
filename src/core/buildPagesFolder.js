@@ -6,6 +6,30 @@ import compile from "./compile";
 import resolvePath from "../utils/resolvePath";
 
 /**
+ * @param {string} content
+ * @returns
+ */
+export function parseMarkdown(content) {
+  const stack = [];
+
+  const frontmatter = fm(content);
+  marked.use({
+    walkTokens(token) {
+      // skip content in mustaches
+      if (token.raw.includes("{{")) stack.push("{{");
+      if (token.raw.includes("}}")) stack.pop();
+      if (stack.length > 0) {
+        token.type = "text";
+        token.text = token.raw;
+      }
+    },
+  });
+  const html = marked(frontmatter.body);
+
+  return html;
+}
+
+/**
  * @param {import("../utils/getBuildInfo").BuildInfo} buildInfo
  */
 function buildPagesFolder(buildInfo) {
@@ -21,21 +45,8 @@ function buildPagesFolder(buildInfo) {
   });
 
   globMd.forEach((url) => {
-    let stack = [];
     let markdown = fs.readFileSync(url, { encoding: "utf-8" });
-    const frontmatter = fm(markdown);
-    marked.use({
-      walkTokens(token) {
-        // skip content in mustaches
-        if (token.raw.includes("{{")) stack.push("{{");
-        if (token.raw.includes("}}")) stack.pop();
-        if (stack.length > 0) {
-          token.type = "text";
-          token.text = token.raw;
-        }
-      },
-    });
-    const html = marked(frontmatter.body);
+    const html = parseMarkdown(markdown);
     compile(url, buildInfo, html);
   });
 }

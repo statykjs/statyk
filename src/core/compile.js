@@ -9,6 +9,7 @@ import relinkHyperlinks from "./relinkHyperlinks";
 import writeToOutput from "../utils/writeToOutput";
 import compileTemplate from "../core/compileTemplate";
 import injectLiveReloadScript from "../utils/injectLiveReloadScript";
+import { parseMarkdown } from "./buildPagesFolder";
 
 export const coreRuntime = {
   caches: {
@@ -21,23 +22,30 @@ export const coreRuntime = {
 /**
  *
  * @param {import("../utils/getBuildInfo").BuildInfo} buildInfo
- * @param {string} htmlContent
+ * @param {string} content
  */
-function compile(input, buildInfo, htmlContent) {
+function compile(input, buildInfo, content, context = {}) {
   const inputFile = path.resolve(input || buildInfo.INPUT_FILE);
 
   coreRuntime.caches.compilation.put(inputFile, true);
   const fileName = path.basename(inputFile);
   const filePath = path.relative(buildInfo.BASE_FOLDER, inputFile);
+  const isMarkdown = filePath.endsWith(".md");
 
   try {
-    const fileContent = htmlContent
-      ? htmlContent
+    let fileContent = content
+      ? content
       : fs.readFileSync(inputFile, { encoding: "utf-8" });
+
+    if (isMarkdown) {
+      fileContent = parseMarkdown(content);
+    }
     const root = parse(fileContent);
 
     logger.log(`>> Compiling Template ${fileName}`, "magentaBright");
-    root.set_content(compileTemplate(root.innerHTML, buildInfo.BASE_FOLDER));
+    root.set_content(
+      compileTemplate(root.innerHTML, buildInfo.BASE_FOLDER, context)
+    );
 
     if (coreRuntime.isFirstCompileRun) {
       copyAssets(buildInfo.BASE_FOLDER, buildInfo.OUTPUT_FOLDER);
