@@ -2,12 +2,5 @@
 
   ## Hello world
 
-  {{
-    map(["anuraghazra", "saurabhdaware", "HarshKapadia2"], 
-    (username) => {
-      return `
-        <include src="partials/avatar.html" username="${username}" />
-      `
-    })
-  }}
+  <include src="partials/counter.html" count="10" />
 </include>

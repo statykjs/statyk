@@ -1,0 +1,23 @@
+<span class="flex gap-2 items-center mt-2">
+  <button hashid="dec-btn" class="btn">-</button>
+  <span hashid="count">{{props.count}}</span>
+  <button hashid="inc-btn" class="btn">+</button>
+</span>
+
+<script>
+  let count = parseInt(props.count || 0);
+  const step = parseInt(props.step || 1);
+  console.log(props, count, step);
+  const countElm = getElementByHashId("count");
+  const incEl = getElementByHashId("inc-btn");
+  const decEl = getElementByHashId("dec-btn");
+
+  incEl.addEventListener("click", () => {
+    count += step;
+    countElm.innerHTML = count;
+  });
+  decEl.addEventListener("click", () => {
+    count -= step;
+    countElm.innerHTML = count;
+  });
+</script>

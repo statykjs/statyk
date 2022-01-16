@@ -2,24 +2,73 @@ import path from "node:path";
 import shortid from "shortid";
 import { snakeCase } from "lodash-es";
 import { parse } from "node-html-parser";
+import ts from "typescript";
 
-import regexMatchAll from "../utils/regexMatchAll";
 import { stringifyObject } from "./runExpression";
 import { coreRuntime } from "./compile";
 
-const GET_ELEMENT_REGEX = /getElementByHashId\("(.*)"\)/gm;
+const HASH_ID_FUNC = "getElementByHashId";
 
 /**
- * @param {string} content
- * @param {id} id
- * @returns {string}
+ * @param {string} idName
+ * @param {string} sid
+ * @param {HTMLScriptElement[]} allIdNames
  */
-const convertGetElementByHashId = (content, id) => {
-  return content.replace(
-    `getElementByHashId("${id}")`,
-    `document.getElementById(__id + "-${id}")`
-  );
-};
+function processHashElements(idName, sid, allIdNames) {
+  const element = allIdNames[idName];
+  const newId = `${sid}-${idName}`;
+  if (!element) {
+    throw new Error(`Cannot find element with hashid: ${idName}`);
+  }
+  element.setAttribute("id", newId);
+  element.removeAttribute("hashid");
+}
+
+/**
+ * @template {ts.Node} T
+ * @param {string} sid
+ * @param {HTMLScriptElement[]} allIdNames
+ * @returns {ts.TransformerFactory<T>}
+ */
+function transformGetByHashId(sid, allIdNames) {
+  return (context) => {
+    /** @type {ts.Visitor} */
+    const visit = (node) => {
+      if (ts.isCallExpression(node)) {
+        if (node.expression.escapedText !== HASH_ID_FUNC) return node;
+
+        const arg = node.arguments[0];
+        if (!arg) {
+          throw new Error(`${HASH_ID_FUNC} expects 1 argument but got zero`);
+        }
+        if (!ts.isStringLiteral(arg)) {
+          throw new TypeError(`${HASH_ID_FUNC} only accepts string`);
+        }
+        const idName = arg.text;
+        processHashElements(idName, sid, allIdNames);
+
+        return ts.factory.updateCallExpression(
+          node,
+          ts.factory.createPropertyAccessExpression(
+            ts.factory.createIdentifier("document"),
+            "getElementById"
+          ),
+          [],
+          [
+            ts.factory.createBinaryExpression(
+              ts.factory.createIdentifier("__id"),
+              ts.SyntaxKind.PlusToken,
+              ts.factory.createStringLiteral(`-${idName}`)
+            ),
+          ]
+        );
+      }
+      return ts.visitEachChild(node, (child) => visit(child), context);
+    };
+
+    return (node) => ts.visitNode(node, visit);
+  };
+}
 
 /**
  * Parses script tags and instantiates component instances
@@ -30,7 +79,7 @@ const convertGetElementByHashId = (content, id) => {
  */
 const instanceComponentScript = (html, fileName, props) => {
   const root = parse(html);
-  const p = stringifyObject(props);
+  const stringProps = stringifyObject(props);
   const componentName = path
     .basename(fileName)
     .replace(path.extname(fileName), "");
@@ -46,20 +95,12 @@ const instanceComponentScript = (html, fileName, props) => {
       return { ...prev, [curr.attributes.hashid]: curr };
     }, {});
 
-    regexMatchAll(GET_ELEMENT_REGEX, script.textContent, (match) => {
-      const idName = match[1];
-      const element = allIdNames[idName];
-      if (!element) throw new Error("Nope");
-
-      const newId = `${sid}-${idName}`;
-      element.setAttribute("id", newId);
-      element.removeAttribute("hashid");
-
-      script.textContent = convertGetElementByHashId(
-        script.textContent,
-        idName
-      );
+    // TODO: improve compilerOptions
+    const { outputText } = ts.transpileModule(script.textContent, {
+      compilerOptions: { allowJs: true },
+      transformers: { before: [transformGetByHashId(sid, allIdNames)] },
     });
+    script.textContent = outputText;
 
     const fnName = snakeCase(componentName);
     script.textContent = `
@@ -76,7 +117,7 @@ const instanceComponentScript = (html, fileName, props) => {
       content: script.textContent,
       instances: [
         ...(scriptCache?.instances || []),
-        `${fnName}({ __id: "${sid}", ${p}});`,
+        `${fnName}({ __id: "${sid}", ${stringProps}});`,
       ],
     });
 
