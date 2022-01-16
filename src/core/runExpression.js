@@ -1,3 +1,4 @@
+// @ts-check
 import { NodeVM } from "vm2";
 import logger from "../utils/logger";
 

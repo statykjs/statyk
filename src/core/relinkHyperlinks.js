@@ -1,18 +1,19 @@
+import { HTMLElement } from "node-html-parser";
 import resolvePath from "../utils/resolvePath";
 import compile from "./compile";
 
 /**
  * @param {HTMLElement} root
- * @param {import("../utils/getBuildInfo").BuildInfo} buildInfo
+ * @param {import("./types").StatykContext} statykCtx
  */
-function relinkHyperlinks(root, buildInfo) {
-  const pagesRegex = new RegExp(`^\\b${buildInfo.PAGES_FOLDER}\\b`);
+function relinkHyperlinks(root, statykCtx) {
+  const pagesRegex = new RegExp(`^\\b${statykCtx.PAGES_FOLDER}\\b`);
   try {
     // Relink & parse hyperlinked files
     const hyperlinks = root.querySelectorAll('a[href!="#"]');
     hyperlinks.forEach((hyperlink) => {
       const rawUrl = hyperlink.getAttribute("href");
-      const assetUrl = resolvePath(buildInfo.BASE_FOLDER, rawUrl);
+      const assetUrl = resolvePath(statykCtx.BASE_FOLDER, rawUrl);
       if (rawUrl.startsWith("http")) return;
 
       const href = `/${rawUrl.replace(pagesRegex, "").replace("/", "")}`;
@@ -31,7 +32,7 @@ function relinkHyperlinks(root, buildInfo) {
       // disable automatic link compiling for now
       if (false) {
         console.log(assetUrl);
-        compile(assetUrl, buildInfo);
+        compile(assetUrl, statykCtx);
       }
     });
   } catch (err) {

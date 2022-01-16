@@ -1,7 +1,8 @@
+// @ts-check
 import path from "node:path";
 import shortid from "shortid";
 import { snakeCase } from "lodash-es";
-import { parse } from "node-html-parser";
+import { HTMLElement, parse } from "node-html-parser";
 import ts from "typescript";
 
 import { stringifyObject } from "./runExpression";
@@ -12,7 +13,7 @@ const HASH_ID_FUNC = "getElementByHashId";
 /**
  * @param {string} idName
  * @param {string} sid
- * @param {HTMLScriptElement[]} allIdNames
+ * @param {Record<string, HTMLElement>} allIdNames
  */
 function processHashElements(idName, sid, allIdNames) {
   const element = allIdNames[idName];
@@ -27,7 +28,7 @@ function processHashElements(idName, sid, allIdNames) {
 /**
  * @template {ts.Node} T
  * @param {string} sid
- * @param {HTMLScriptElement[]} allIdNames
+ * @param {Record<string, HTMLElement>} allIdNames
  * @returns {ts.TransformerFactory<T>}
  */
 function transformGetByHashId(sid, allIdNames) {
@@ -35,6 +36,7 @@ function transformGetByHashId(sid, allIdNames) {
     /** @type {ts.Visitor} */
     const visit = (node) => {
       if (ts.isCallExpression(node)) {
+        // @ts-ignore
         if (node.expression.escapedText !== HASH_ID_FUNC) return node;
 
         const arg = node.arguments[0];
@@ -91,6 +93,7 @@ const instanceComponentScript = (html, fileName, props) => {
     const sid = shortid.generate();
     const elementIds = root.querySelectorAll("[hashid]");
 
+    /** @type {Record<string, HTMLElement>} */
     const allIdNames = elementIds.reduce((prev, curr) => {
       return { ...prev, [curr.attributes.hashid]: curr };
     }, {});

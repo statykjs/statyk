@@ -1,14 +1,9 @@
-import fs from "fs-extra";
-import buildPagesFolder from "../core/buildPagesFolder";
-import compile from "../core/compile";
-import { getBuildInfo } from "../utils/getBuildInfo";
+import Statyk from "../core/statyk";
 
 function build() {
-  const buildInfo = getBuildInfo();
-
-  fs.emptyDirSync(buildInfo.OUTPUT_FOLDER);
-  compile(buildInfo.INPUT_FILE, buildInfo);
-  buildPagesFolder(buildInfo);
+  const statyk = new Statyk();
+  statyk.init();
+  statyk.build();
 }
 
 build();
