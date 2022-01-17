@@ -9,20 +9,10 @@ Dead simple statyk site generator
 
 TODOS
 
-- Content folders support
-- JS API for creating pages
-- Compile scripts with AST
-- Support extrating scripts to external js script
-- Support for <style\> tag
-
-dev:watch works
-
-index.js on root
-- works on stub
-- works on build
-
-examples
-- works on build, cjs
-- works on build, esm
-
-cli works with cjs format
+- [x] JS API for creating pages
+- [x] Compile scripts with AST
+- [ ] Content folders support
+- [ ] Support extrating scripts to external js script
+- [ ] Support for <style\> tag
+- [ ] Improve CLI
+- [ ] TypeScript migration of codebase
