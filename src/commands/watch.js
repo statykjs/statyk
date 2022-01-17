@@ -6,16 +6,17 @@ const watcher = () => {
   statyk.init();
 
   const buildInfo = statyk.statykCtx;
-  const isWatching = process.argv.includes("--watch");
 
   if (!buildInfo.OUTPUT_FOLDER.startsWith("./")) {
     logger.warn("Make sure that output folder starts with ./");
     process.exit(1);
   }
 
-  if (isWatching) {
-    statyk.serve();
-  }
+  statyk.serve();
 };
 
-watcher();
+if (process.argv.includes("--run")) {
+  watcher();
+}
+
+export default watcher;

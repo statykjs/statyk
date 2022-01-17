@@ -29,8 +29,8 @@ function processBuildConfig(config) {
 }
 
 function getBuildInfo() {
-  const explorer = cosmiconfigSync("deadsimple");
-  const { config } = explorer.load(".deadsimplerc");
+  const explorer = cosmiconfigSync("statyk");
+  const { config } = explorer.load(".statykrc");
 
   return processBuildConfig(config);
 }

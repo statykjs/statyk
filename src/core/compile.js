@@ -27,7 +27,7 @@ export const coreRuntime = {
  * @param {string=} content
  * @param {Record<string, any>=} context
  */
-async function compile(input, statykCtx, content, context = {}) {
+export async function compile(input, statykCtx, content, context = {}) {
   const inputFile = path.resolve(input || statykCtx.INPUT_FILE);
 
   coreRuntime.caches.compilation.put(inputFile, true);
@@ -83,5 +83,3 @@ async function compile(input, statykCtx, content, context = {}) {
 
   coreRuntime.isFirstCompileRun = false;
 }
-
-export default compile;

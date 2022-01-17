@@ -1,7 +1,7 @@
 // @ts-check
 import path from "node:path";
 import shortid from "shortid";
-import { snakeCase } from "lodash-es";
+import snakeCase from "lodash/snakeCase";
 import { HTMLElement, parse } from "node-html-parser";
 import ts from "typescript";
 

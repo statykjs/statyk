@@ -1,7 +1,7 @@
 import fs from "fs-extra";
 import pathjs from "node:path";
 import { getBuildInfo, processBuildConfig } from "../utils/getBuildInfo";
-import compile from "./compile";
+import { compile } from "./compile";
 import buildPagesFolder from "./buildPagesFolder";
 import createWatchServer from "../utils/createWatchServer";
 
