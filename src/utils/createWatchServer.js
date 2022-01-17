@@ -2,12 +2,10 @@ import path from "node:path";
 import livereload from "livereload";
 import removeTrailingDots from "../utils/removeTrailingDots";
 import { Stats } from "node:fs";
-import module from "module";
 
-const require = module.createRequire(import.meta.url);
-const chokidar = require("chokidar");
-const connect = require("connect");
-const serveStatic = require("serve-static");
+import chokidar from "chokidar";
+import connect from "connect";
+import serveStatic from "serve-static";
 
 /**
  * @param {import("../core/types").StatykContext} statykCtx

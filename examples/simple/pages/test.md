@@ -1,4 +1,4 @@
-<include src="partials/layout.html">
+<include src="partials/layout.html" title="Hello">
 
   ## Hello world
 

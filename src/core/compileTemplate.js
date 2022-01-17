@@ -2,7 +2,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { HTMLElement, parse } from "node-html-parser";
-import { merge } from "lodash-es";
+import merge from "lodash/merge";
 import nJSON from "json-normalize";
 
 import { coreRuntime } from "./compile";

@@ -1,11 +1,11 @@
-import Statyk from "./src/core/statyk";
+import Statyk from "./dist";
 import fetch from "node-fetch";
-import { take } from "lodash-es";
+import take from "lodash/take";
 
 const statyk = new Statyk();
 
 statyk.init({
-  out: "./dist",
+  out: "./out",
   input: "./examples/simple/index.html",
   pagesFolder: "pages",
 });

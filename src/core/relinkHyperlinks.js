@@ -1,6 +1,6 @@
 import { HTMLElement } from "node-html-parser";
 import resolvePath from "../utils/resolvePath";
-import compile from "./compile";
+import { compile } from "./compile";
 
 /**
  * @param {HTMLElement} root

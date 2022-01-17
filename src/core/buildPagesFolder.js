@@ -2,7 +2,7 @@
 import glob from "glob";
 import fm from "front-matter";
 import { marked } from "marked";
-import compile from "./compile";
+import { compile } from "./compile";
 import resolvePath from "../utils/resolvePath";
 
 /**

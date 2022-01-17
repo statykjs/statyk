@@ -6,7 +6,9 @@ function build() {
   statyk.build();
 }
 
-build();
+if (process.argv.includes("--run")) {
+  build();
+}
 
 export default build;
 // const contentIncludes = root.querySelectorAll("[data-include-content]");
