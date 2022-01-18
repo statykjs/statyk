@@ -66,7 +66,7 @@ class Statyk {
     this.pluginManager = new PluginManager(this.statykCtx);
   }
 
-  init(options: StatykConfig) {
+  init(options?: StatykConfig) {
     const buildInfo = !options ? getBuildInfo() : processBuildConfig(options);
     this.pluginManager.buildInfo = buildInfo;
     this.statykCtx = {
