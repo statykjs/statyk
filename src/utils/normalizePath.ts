@@ -1,9 +1,7 @@
 /**
  * @see https://github.com/sindresorhus/slash
- * @param {string} path
- * @returns {string}
  */
-const normalizePath = (path) => {
+const normalizePath = (path: string) => {
   const isExtendedLengthPath = /^\\\\\?\\/.test(path);
   const hasNonAscii = /[^\u0000-\u0080]+/.test(path); // eslint-disable-line no-control-regex
 

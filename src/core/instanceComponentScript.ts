@@ -1,4 +1,3 @@
-// @ts-check
 import path from "node:path";
 import shortid from "shortid";
 import snakeCase from "lodash/snakeCase";
@@ -10,12 +9,11 @@ import { coreRuntime } from "./compile";
 
 const HASH_ID_FUNC = "getElementByHashId";
 
-/**
- * @param {string} idName
- * @param {string} sid
- * @param {Record<string, HTMLElement>} allIdNames
- */
-function processHashElements(idName, sid, allIdNames) {
+function processHashElements(
+  idName: string,
+  sid: string,
+  allIdNames: Record<string, HTMLElement>
+) {
   const element = allIdNames[idName];
   const newId = `${sid}-${idName}`;
   if (!element) {
@@ -25,16 +23,13 @@ function processHashElements(idName, sid, allIdNames) {
   element.removeAttribute("hashid");
 }
 
-/**
- * @template {ts.Node} T
- * @param {string} sid
- * @param {Record<string, HTMLElement>} allIdNames
- * @returns {ts.TransformerFactory<T>}
- */
-function transformGetByHashId(sid, allIdNames) {
-  return (context) => {
+function transformGetByHashId<T extends ts.Node>(
+  sid: string,
+  allIdNames: Record<string, HTMLElement>
+): ts.TransformerFactory<T> {
+  return (context: ts.TransformationContext) => {
     /** @type {ts.Visitor} */
-    const visit = (node) => {
+    const visit: ts.Visitor = (node: ts.Node) => {
       if (ts.isCallExpression(node)) {
         // @ts-ignore
         if (node.expression.escapedText !== HASH_ID_FUNC) return node;
@@ -68,18 +63,18 @@ function transformGetByHashId(sid, allIdNames) {
       return ts.visitEachChild(node, (child) => visit(child), context);
     };
 
-    return (node) => ts.visitNode(node, visit);
+    return (node: any) => ts.visitNode(node, visit);
   };
 }
 
 /**
  * Parses script tags and instantiates component instances
- * @param {string} html
- * @param {string} fileName
- * @param {Record<string, any>} props
- * @returns
  */
-const instanceComponentScript = (html, fileName, props) => {
+const instanceComponentScript = (
+  html: string,
+  fileName: string,
+  props: Record<string, any>
+) => {
   const root = parse(html);
   const stringProps = stringifyObject(props);
   const componentName = path
@@ -115,7 +110,7 @@ const instanceComponentScript = (html, fileName, props) => {
 
     const scriptCache = coreRuntime.caches.scripts.get(fnName);
     coreRuntime.caches.scripts.put(fnName, {
-      ...scriptCache,
+      ...scriptCache!,
       el: script,
       content: script.textContent,
       instances: [

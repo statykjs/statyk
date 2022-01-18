@@ -1,15 +1,11 @@
 // @ts-check
 import fs from "fs-extra";
 import path from "node:path";
+import { StatykContext } from "../core/types";
 import logger from "./logger";
 import resolvePath from "./resolvePath";
 
-/**
- * @param {string} from
- * @param {string} to
- * @param {import("../core/types").StatykContext} statykCtx
- */
-function copyAssets(from, to, statykCtx) {
+function copyAssets(from: string, to: string, statykCtx: StatykContext) {
   try {
     logger.log("Copying Assets", "gray");
     const inputPath = resolvePath(from, statykCtx.STATIC_FOLDER);
@@ -17,6 +13,7 @@ function copyAssets(from, to, statykCtx) {
 
     fs.copySync(inputPath, outputPath);
   } catch (err) {
+    // @ts-ignore
     if (err.code == "ENOENT") {
       logger.error(`No static folder found`);
     }
