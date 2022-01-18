@@ -1,11 +1,6 @@
 import path from "node:path";
 
-/**
- * @param {string} baseFolder
- * @param {string} url
- * @returns {string}
- */
-const resolvePath = (baseFolder, url) => {
+const resolvePath = (baseFolder: string, url: string) => {
   return path.resolve(process.cwd(), baseFolder, ...url.split(path.sep));
 };
 export default resolvePath;

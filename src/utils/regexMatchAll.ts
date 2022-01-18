@@ -1,11 +1,6 @@
 /**
- *
- * @param {RegExp} regex
- * @param {string} template
- * @param {(match: string) => void} template
- * @returns {{matches: string[], template: string}}
  */
-const regexMatchAll = (regex, template, callback) => {
+const regexMatchAll = (regex: RegExp, template: string, callback: (match: RegExpExecArray, index?: number) => void) => {
   /** allMatches holds all the results of RegExp.exec() */
   const allMatches = [];
   let match = regex.exec(template);
@@ -16,13 +11,14 @@ const regexMatchAll = (regex, template, callback) => {
   const { input } = match;
 
   while (match !== null) {
+    // @ts-ignore
     delete match.input;
     allMatches.push(match);
     match = regex.exec(template);
   }
 
   if (callback) {
-    allMatches.forEach(callback);
+    allMatches.forEach((m, index) => callback(m, index));
   }
   return { matches: allMatches, input };
 };
