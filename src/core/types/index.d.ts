@@ -1,5 +1,6 @@
 import { HTMLElement } from "node-html-parser";
 import { getBuildInfo } from "../../utils/getBuildInfo";
+import { PluginManager } from "../statyk";
 
 export type PageNode = {
   path: string;
@@ -39,3 +40,10 @@ export type StatykPlugin = (opts: any) => PluginHook;
 export type PluginHookNames = keyof PluginHook;
 
 export type StatykContext = BuildInfo & { pluginManager: PluginManager };
+
+export type StatykConfig = {
+  input: string;
+  out: string;
+  pagesFolder: string;
+  staticFolder: string;
+};

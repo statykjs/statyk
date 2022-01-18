@@ -1,33 +1,39 @@
-// @ts-check
 import fs from "fs-extra";
 import path from "node:path";
 import { Cache } from "memory-cache";
-import { parse } from "node-html-parser";
+import { HTMLElement, parse } from "node-html-parser";
 
 import logger from "../utils/logger";
 import copyAssets from "../utils/copyAssets";
 import relinkHyperlinks from "./relinkHyperlinks";
 import writeToOutput from "../utils/writeToOutput";
-import compileTemplate from "../core/compileTemplate";
+import compileTemplate from "./compileTemplate";
 import injectLiveReloadScript from "../utils/injectLiveReloadScript";
 import { parseMarkdown } from "./buildPagesFolder";
+import { StatykContext } from "./types";
 
 export const coreRuntime = {
   caches: {
-    compilation: new Cache(),
-    scripts: new Cache(),
+    compilation: new Cache<string, boolean>(),
+    scripts: new Cache<
+      string,
+      {
+        el: HTMLElement | null;
+        content: string;
+        appended: boolean;
+        instances: string[];
+      }
+    >(),
   },
   isFirstCompileRun: true,
 };
 
-/**
- *
- * @param {string} input
- * @param {import("./types").StatykContext} statykCtx
- * @param {string=} content
- * @param {Record<string, any>=} context
- */
-export async function compile(input, statykCtx, content, context = {}) {
+export async function compile(
+  input: string,
+  statykCtx: StatykContext,
+  content?: string,
+  context?: Record<string, any>
+) {
   const inputFile = path.resolve(input || statykCtx.INPUT_FILE);
 
   coreRuntime.caches.compilation.put(inputFile, true);
@@ -46,15 +52,15 @@ export async function compile(input, statykCtx, content, context = {}) {
     const root = parse(fileContent);
 
     /** @type {import("./types").PluginPageNode} */
-    const pageNode = {
+    const pageNode: import("./types").PluginPageNode = {
       path: filePath,
       isMarkdown,
       fileName,
       inputFile,
-      isCached: coreRuntime.caches.compilation.get(inputFile),
+      isCached: coreRuntime.caches.compilation.get(inputFile) as boolean,
       content: fileContent,
       root,
-      context,
+      context: context || {},
     };
 
     logger.log(`>> Compiling Template ${fileName}`, "magentaBright");

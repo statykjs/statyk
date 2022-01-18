@@ -1,18 +1,16 @@
 import path from "node:path";
 import livereload from "livereload";
-import removeTrailingDots from "../utils/removeTrailingDots";
+import removeTrailingDots from "./removeTrailingDots";
 import { Stats } from "node:fs";
 
 import chokidar from "chokidar";
 import connect from "connect";
 import serveStatic from "serve-static";
+import { StatykContext } from "../core/types";
 
-/**
- * @param {import("../core/types").StatykContext} statykCtx
- * @param {(path: string, stats?: Stats) => void} task
- */
-function createWatchServer(statykCtx, task) {
-  const removeTrailingSlash = (path) => path.replace(/\/$/, "");
+type Task = (path?: string, stats?: Stats) => void;
+function createWatchServer(statykCtx: StatykContext, task: Task) {
+  const removeTrailingSlash = (path: string) => path.replace(/\/$/, "");
   const watchRoot = removeTrailingSlash(statykCtx.BASE_FOLDER);
   const ignored = removeTrailingDots(
     removeTrailingSlash(statykCtx.OUTPUT_FOLDER)

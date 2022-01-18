@@ -1,12 +1,7 @@
-// @ts-check
 import { NodeVM } from "vm2";
 import logger from "../utils/logger";
 
-/**
- * @param {string} str
- * @returns {boolean}
- */
-export const isArrayStr = (str) => {
+export const isArrayStr = (str: string): boolean => {
   try {
     const v = JSON.parse(str);
     if (Array.isArray(v)) return true;
@@ -16,11 +11,7 @@ export const isArrayStr = (str) => {
   }
 };
 
-/**
- * @param {Record<string, any>} obj
- * @returns  {string}
- */
-export const stringifyObject = (obj) => {
+export const stringifyObject = (obj: Record<string, any>): string => {
   return Object.keys(obj)
     .filter((key) => key !== "src")
     .map((key) => {
@@ -32,12 +23,10 @@ export const stringifyObject = (obj) => {
     .join("\n");
 };
 
-/**
- * @param {string} js
- * @param {Record<string, any>} globalVars
- * @returns {string}
- */
-const runExpression = (js, globalVars = {}) => {
+const runExpression = (
+  js: string,
+  globalVars: Record<string, any> = {}
+): string => {
   try {
     const vm = new NodeVM({
       require: {
@@ -61,8 +50,11 @@ const runExpression = (js, globalVars = {}) => {
     `;
     return vm.run(code);
   } catch (err) {
+    // @ts-ignore
     logger.warn(err);
   }
+
+  return "";
 };
 
 export default runExpression;

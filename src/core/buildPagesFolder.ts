@@ -1,16 +1,12 @@
-// @ts-check
 import glob from "glob";
 import fm from "front-matter";
 import { marked } from "marked";
 import { compile } from "./compile";
 import resolvePath from "../utils/resolvePath";
+import { StatykContext } from "./types";
 
-/**
- * @param {string} content
- * @returns
- */
-export function parseMarkdown(content) {
-  const stack = [];
+export function parseMarkdown(content: string) {
+  const stack: string[] = [];
 
   const frontmatter = fm(content);
   marked.use({
@@ -30,10 +26,7 @@ export function parseMarkdown(content) {
   return html;
 }
 
-/**
- * @param {import("./types").StatykContext} statykCtx
- */
-async function buildPagesFolder(statykCtx) {
+async function buildPagesFolder(statykCtx: StatykContext) {
   const pagesFolder = resolvePath(
     statykCtx.BASE_FOLDER,
     statykCtx.PAGES_FOLDER

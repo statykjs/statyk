@@ -3,21 +3,13 @@ import fs from "fs-extra";
 import normalizePath from "./normalizePath";
 import prettier from "prettier";
 import { HTMLElement } from "node-html-parser";
+import { StatykContext } from "../core/types";
 
-/**
- * @param {string} code
- * @returns {string}
- */
-const formatCode = (code) => {
+const formatCode = (code: string) => {
   return prettier.format(code, { parser: "html" });
 };
 
-/**
- * @param {HTMLElement} root
- * @param {string} filePath
- * @param {import("../core/types").StatykContext} statykCtx
- */
-function writeToOutput(root, filePath, statykCtx) {
+function writeToOutput(root: HTMLElement, filePath: string, statykCtx: StatykContext) {
   const pagesRegex = new RegExp(`^\\b${statykCtx.PAGES_FOLDER}\\b`);
 
   // remove pages folder

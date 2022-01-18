@@ -1,18 +1,15 @@
 import { HTMLElement } from "node-html-parser";
 import resolvePath from "../utils/resolvePath";
 import { compile } from "./compile";
+import { StatykContext } from "./types";
 
-/**
- * @param {HTMLElement} root
- * @param {import("./types").StatykContext} statykCtx
- */
-function relinkHyperlinks(root, statykCtx) {
+function relinkHyperlinks(root: HTMLElement, statykCtx: StatykContext) {
   const pagesRegex = new RegExp(`^\\b${statykCtx.PAGES_FOLDER}\\b`);
   try {
     // Relink & parse hyperlinked files
     const hyperlinks = root.querySelectorAll('a[href!="#"]');
     hyperlinks.forEach((hyperlink) => {
-      const rawUrl = hyperlink.getAttribute("href");
+      const rawUrl = hyperlink.getAttribute("href")!;
       const assetUrl = resolvePath(statykCtx.BASE_FOLDER, rawUrl);
       if (rawUrl.startsWith("http")) return;
 

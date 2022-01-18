@@ -1,24 +1,23 @@
 // @ts-check
 import fs from "node:fs";
 import path from "node:path";
-import { HTMLElement, parse } from "node-html-parser";
+import { HTMLElement, Node, parse } from "node-html-parser";
 import merge from "lodash/merge";
+// @ts-ignore
 import nJSON from "json-normalize";
 
 import { coreRuntime } from "./compile";
 import runExpression from "./runExpression";
 import regexMatchAll from "../utils/regexMatchAll";
 import instanceComponentScript from "./instanceComponentScript";
+import { Attributes } from "node-html-parser/dist/nodes/html";
 
 export const MUSTACHE_REGEX = /\\?\{\{(.+?)\}\}/gs;
 
 /**
  * evaluate mustache in html template
- * @param {string} html
- * @param {Record<string, string>} attrs
- * @returns {string}
  */
-function evaluateMustaches(html, attrs) {
+function evaluateMustaches(html: string, attrs: Record<string, string>) {
   regexMatchAll(MUSTACHE_REGEX, html, (match) => {
     const expression = match[1];
     html = html.replace(match[0], runExpression(expression, attrs));
@@ -29,11 +28,8 @@ function evaluateMustaches(html, attrs) {
 
 /**
  * evaluate mustache in html template
- * @param {string} html
- * @param {string} children
- * @returns {string}
  */
-export function evaluateSlots(html, children) {
+export function evaluateSlots(html: string, children: string | Node) {
   const root = parse(html);
   const slots = root.querySelectorAll("slot");
   slots.forEach((slot) => {
@@ -45,9 +41,8 @@ export function evaluateSlots(html, children) {
 
 /**
  * append component instance scripts
- * @param {HTMLElement} root
  */
-function appendScripts(root) {
+function appendScripts(root: HTMLElement) {
   const scriptCache = coreRuntime.caches.scripts;
 
   scriptCache.keys().forEach((scriptKey) => {
@@ -65,7 +60,7 @@ function appendScripts(root) {
       `<script>${script}${instances}</script>`
     );
 
-    value.el.remove();
+    value!.el!.remove();
     scriptCache.put(scriptKey, {
       ...value,
       appended: true,
@@ -74,12 +69,11 @@ function appendScripts(root) {
   });
 }
 
-/**
- * @param {import("node-html-parser/dist/nodes/html").Attributes} attributes
- * @param {Record<string, any>} vars
- */
-function evaluateMustachesInProps(attributes, vars) {
-  let props = [];
+function evaluateMustachesInProps(
+  attributes: Attributes,
+  vars: Record<string, any>
+) {
+  let props: { attr: string; value: string }[] = [];
   Object.keys(attributes).map((attr) => {
     regexMatchAll(MUSTACHE_REGEX, attributes[attr], (match) => {
       const value = nJSON.normalizeSync(runExpression(match[1], vars));
@@ -91,18 +85,15 @@ function evaluateMustachesInProps(attributes, vars) {
 
 /**
  * Not in use
- * @param {string} html
- * @param {string} baseFolder
- * @returns {string}
  */
-const resolveIncludes = (html, baseFolder) => {
+const resolveIncludes = (html: string, baseFolder: string) => {
   const root = parse(html);
 
   const includes = root.querySelectorAll("include[src]");
 
   includes.forEach((include) => {
     const url = include.getAttribute("src");
-    const parsedUrl = path.resolve(baseFolder, url);
+    const parsedUrl = path.resolve(baseFolder, url!);
     const html = fs.readFileSync(parsedUrl, { encoding: "utf-8" });
 
     const finalHtml = resolveIncludes(html, baseFolder);
@@ -115,11 +106,9 @@ const resolveIncludes = (html, baseFolder) => {
 
 /**
  * finds and returns all <include /> elements inside mustaches
- * @param {string} html
- * @returns {HTMLElement[]}
  */
-const findIncludesInMustaches = (html) => {
-  let includes = [];
+const findIncludesInMustaches = (html: string): HTMLElement[] => {
+  let includes: HTMLElement[] = [];
   regexMatchAll(MUSTACHE_REGEX, html, (match) => {
     const expression = match[1];
     const parsedHtml = parse(expression);
@@ -128,12 +117,7 @@ const findIncludesInMustaches = (html) => {
   return includes;
 };
 
-/**
- * @param {string} html
- * @param {string} baseFolder
- * @returns
- */
-const compileTemplate = (html, baseFolder, vars = {}) => {
+const compileTemplate = (html: string, baseFolder: string, vars: Record<string, any> = {}) => {
   const root = parse(html);
   const includes = root.querySelectorAll("include[src]");
 
@@ -161,7 +145,7 @@ const compileTemplate = (html, baseFolder, vars = {}) => {
       include.setAttribute(prop.attr, prop.value);
     });
     const url = include.getAttribute("src");
-    const parsedUrl = path.resolve(baseFolder, url);
+    const parsedUrl = path.resolve(baseFolder, url!);
     const shtml = fs.readFileSync(parsedUrl, { encoding: "utf-8" });
     const mergedProps = merge(vars, include.attributes);
 

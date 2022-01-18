@@ -1,7 +1,7 @@
 {
   "name": "statyk",
   "private": false,
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "A dead simple statyk site generator",
   "homepage": "https://github.com/statykjs/statyk",
   "bugs": {
@@ -13,10 +13,12 @@
   },
   "main": "dist/index.cjs",
   "module": "dist/index.mjs",
+  "types": "dist/index.d.ts",
   "exports": {
     ".": {
       "require": "./dist/index.cjs",
-      "import": "./dist/index.mjs"
+      "import": "./dist/index.mjs",
+      "types": "./dist/index.d.ts"
     }
   },
   "repository": {
@@ -27,14 +29,18 @@
     "build:prod": "unbuild",
     "build:stub": "unbuild --stub",
     "prepack": "npm run build:prod",
-    "dev": "jiti ./src/commands/watch.js --run",
-    "dev:build": "jiti ./src/commands/build.js --run",
+    "dev": "jiti ./src/commands/watch.ts --run",
+    "dev:build": "jiti ./src/commands/build.ts --run",
     "dev:index": "jiti ./index.js",
     "dev:watch": "nodemon --experimental-modules --experimental-specifier-resolution=node ./src/commands/build.js --run"
   },
   "author": "Anurag Hazra <hazru.anurag@gmail.com>",
   "license": "MIT",
   "dependencies": {
+    "@types/lodash": "^4.14.178",
+    "@types/memory-cache": "^0.2.1",
+    "@types/prettier": "^2.4.3",
+    "@types/shortid": "^0.0.29",
     "chalk": "^4.1.2",
     "chokidar": "^3.5.2",
     "commander": "^8.3.0",
@@ -60,5 +66,13 @@
     "typescript": "^4.5.4",
     "unbuild": "^0.6.7",
     "vm2": "^3.9.5"
+  },
+  "devDependencies": {
+    "@types/connect": "^3.4.35",
+    "@types/fs-extra": "^9.0.13",
+    "@types/glob": "^7.2.0",
+    "@types/livereload": "^0.9.1",
+    "@types/marked": "^4.0.1",
+    "@types/serve-static": "^1.13.10"
   }
 }
