@@ -39,11 +39,6 @@ export class PluginManager {
     this.buildInfo = buildInfo;
   }
 
-  /**
-   * @template T
-   * @param {import("./types").PluginHookNames} name
-   * @param {T=} data
-   */
   async runPlugins<T extends PluginPageNode & BuildInfo>(
     name: PluginHookNames,
     data?: T
@@ -81,10 +76,7 @@ class Statyk {
     fs.emptyDirSync(this.statykCtx.OUTPUT_FOLDER);
   }
 
-  /**
-   * @param {import("./types").PageNode} node
-   */
-  createPage({ path, context, content }: import("./types").PageNode) {
+  createPage({ path, context, content }: PageNode) {
     this.pagesToCompile.push({
       path: pathjs.join(this.statykCtx.BASE_FOLDER, path),
       buildInfo: this.statykCtx,
@@ -93,18 +85,11 @@ class Statyk {
     });
   }
 
-  /**
-   * @param {import("./types").PageNode[]} pages
-   */
-  createPages(pages: import("./types").PageNode[]) {
+  createPages(pages: PageNode[]) {
     pages.forEach((page) => this.createPage(page));
   }
 
-  /**
-   *
-   * @param {import("./types").PluginHook} plugin
-   */
-  use(plugin: import("./types").PluginHook) {
+  use(plugin: PluginHook) {
     this.pluginManager.plugins.push(plugin);
   }
 
