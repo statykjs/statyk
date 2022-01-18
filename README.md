@@ -1,6 +1,7 @@
-## statyk
-
-Dead simple statyk site generator
+<p align="center">
+ <img width="220px" src="https://res.cloudinary.com/anuraghazra/image/upload/v1642518594/statyklogo-long_pnxpwk.png" align="center" alt="Statykjs" />
+ <p align="center">⚡ Dead simple statyk site generator</p>
+</p>
 
 > coming soon™
 
