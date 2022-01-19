@@ -1,9 +1,11 @@
+import { stack } from "../core/compileTemplate";
 import Statyk from "../core/statyk";
 
-function build() {
+async function build() {
   const statyk = new Statyk();
   statyk.init();
-  statyk.build();
+  await statyk.build();
+  console.log(stack)
 }
 
 if (process.argv.includes("--run")) {

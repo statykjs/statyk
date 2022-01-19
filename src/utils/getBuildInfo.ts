@@ -17,7 +17,6 @@ function processBuildConfig(config: Config) {
     STATIC_FOLDER,
   };
 
-  console.log('Haha')
   return buildInfo;
 }
 

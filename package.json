@@ -32,7 +32,7 @@
     "dev": "jiti ./src/commands/watch.ts --run",
     "dev:build": "jiti ./src/commands/build.ts --run",
     "dev:index": "jiti ./index.js",
-    "dev:watch": "nodemon --experimental-modules --experimental-specifier-resolution=node ./src/commands/build.js --run"
+    "dev:watch": "nodemon --watch src -e ts --exec \"yarn dev:build\""
   },
   "author": "Anurag Hazra <hazru.anurag@gmail.com>",
   "license": "MIT",
@@ -51,6 +51,7 @@
     "fs-extra": "^10.0.0",
     "glob": "^7.2.0",
     "html-entities": "^2.3.2",
+    "js-yaml": "^4.1.0",
     "json-normalize": "^1.1.2",
     "livereload": "^0.9.3",
     "lodash": "^4.17.21",
@@ -73,6 +74,7 @@
     "@types/glob": "^7.2.0",
     "@types/livereload": "^0.9.1",
     "@types/marked": "^4.0.1",
-    "@types/serve-static": "^1.13.10"
+    "@types/serve-static": "^1.13.10",
+    "esbuild-runner": "^2.2.1"
   }
 }
