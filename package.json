@@ -1,7 +1,7 @@
 {
   "name": "statyk",
   "private": false,
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "A dead simple statyk site generator",
   "homepage": "https://github.com/statykjs/statyk",
   "bugs": {
@@ -32,11 +32,14 @@
     "dev": "jiti ./src/commands/watch.ts --run",
     "dev:build": "jiti ./src/commands/build.ts --run",
     "dev:index": "jiti ./index.js",
-    "dev:watch": "nodemon --watch src -e ts --exec \"yarn dev:build\""
+    "dev:watch": "nodemon --watch src -e ts --exec \"yarn dev:build\"",
+    "test": "jest"
   },
   "author": "Anurag Hazra <hazru.anurag@gmail.com>",
   "license": "MIT",
   "dependencies": {
+    "@types/jest": "^27.4.0",
+    "@types/js-yaml": "^4.0.5",
     "@types/lodash": "^4.14.178",
     "@types/memory-cache": "^0.2.1",
     "@types/prettier": "^2.4.3",
@@ -46,10 +49,12 @@
     "commander": "^8.3.0",
     "connect": "^3.7.0",
     "cosmiconfig": "^7.0.1",
+    "cross-fetch": "^3.1.4",
     "esm": "^3.2.25",
     "fs-extra": "^10.0.0",
     "glob": "^7.2.0",
     "html-entities": "^2.3.2",
+    "jest": "^27.4.7",
     "js-yaml": "^4.1.0",
     "json-normalize": "^1.1.2",
     "livereload": "^0.9.3",
@@ -57,22 +62,25 @@
     "lodash-es": "^4.17.21",
     "marked": "^4.0.8",
     "memory-cache": "^0.2.0",
-    "node-fetch": "^3.1.1",
     "node-html-parser": "^5.2.0",
     "prettier": "^2.5.1",
     "serve-static": "^1.14.2",
     "shortid": "^2.2.16",
-    "source-map-support": "^0.5.21",
+    "ts-node": "^10.4.0",
     "typescript": "^4.5.4",
     "unbuild": "^0.6.7",
     "vm2": "^3.9.5"
   },
   "devDependencies": {
+    "@babel/core": "^7.16.10",
+    "@babel/preset-env": "^7.16.11",
+    "@babel/preset-typescript": "^7.16.7",
     "@types/connect": "^3.4.35",
     "@types/fs-extra": "^9.0.13",
     "@types/glob": "^7.2.0",
     "@types/livereload": "^0.9.1",
     "@types/marked": "^4.0.1",
-    "@types/serve-static": "^1.13.10"
+    "@types/serve-static": "^1.13.10",
+    "babel-jest": "^27.4.6"
   }
 }

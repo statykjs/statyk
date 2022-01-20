@@ -12,8 +12,7 @@ import regexMatchAll from "../utils/regexMatchAll";
 import instanceComponentScript from "./instanceComponentScript";
 import { Attributes } from "node-html-parser/dist/nodes/html";
 import runCode from "./runCode";
-import fm from "../libs/frontmatter";
-import isEmpty from "lodash/isEmpty";
+import extractFrontmatter from "../utils/extractFrontmatter";
 
 export const MUSTACHE_REGEX = /\\?\{\{(.+?)\}\}/gs;
 
@@ -126,38 +125,6 @@ const findIncludesInMustaches = (html: string): HTMLElement[] => {
   });
   return includes;
 };
-
-type FmExtractorReturn = {
-  isCodeblock: boolean;
-  body: string;
-  attributes: Record<string, any>;
-  code: string | null;
-};
-function extractFrontmatter(content: string): FmExtractorReturn {
-  try {
-    const matter = fm(content);
-    if (isEmpty(matter.attributes)) {
-      return {
-        isCodeblock: true,
-        body: matter.body,
-        attributes: {},
-        code: matter.frontmatter || null,
-      };
-    }
-    return {
-      isCodeblock: false,
-      body: matter.body,
-      attributes: matter.attributes as Record<string, any>,
-      code: null,
-    };
-  } catch {}
-  return {
-    isCodeblock: false,
-    body: content,
-    attributes: {},
-    code: null,
-  };
-}
 
 const compileTemplate = async (
   html: string,
