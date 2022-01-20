@@ -20,6 +20,7 @@ export type PluginPageNode = {
   content: string;
   root: HTMLElement;
   context: Record<string, any>;
+  frontmatter: any;
 };
 
 export type PluginHook = {

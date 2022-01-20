@@ -1,0 +1,12 @@
+---
+const url: string = `https://api.github.com/users/${props.username}`;
+const user = await fetch(url).then(res => res.json());
+return { user };
+---
+
+<div>
+  <img src="{{user.avatar_url}}" alt="avatar image" />
+  <h4>{{user.name}}</h4>
+  <small>{{user.login}}</small>
+  <a href="{{user.blog}}">{{user.blog}}</a>
+</div>

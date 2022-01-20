@@ -17,7 +17,7 @@ export const stringifyObject = (obj: Record<string, any>): string => {
     .map((key) => {
       const val = isArrayStr(obj[key])
         ? obj[key]
-        : `"${obj[key].replace(/"/g, "")}"`;
+        : `"${`${obj[key]}`.replace(/"/g, "")}"`;
       return `${key}: ${val},`;
     })
     .join("\n");
@@ -25,27 +25,28 @@ export const stringifyObject = (obj: Record<string, any>): string => {
 
 const runExpression = (
   js: string,
+  props: Record<string, any> = {},
   globalVars: Record<string, any> = {}
 ): string => {
   try {
+    const sandbox = {
+      props,
+      ...globalVars,
+    };
+
     const vm = new NodeVM({
       require: {
         external: true,
       },
+      sandbox,
     });
-
-    const stringProps = stringifyObject(globalVars);
 
     const utils = `
       const map = (arr, cb) => arr.map((i, a) => cb(i, a)).join('\\n');
     `;
-
+    
     const code = `
       ${utils}
-      const props = {
-        ${stringProps}
-      };
-
       module.exports = ${js};
     `;
     return vm.run(code);
