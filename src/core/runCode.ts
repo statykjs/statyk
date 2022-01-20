@@ -1,19 +1,20 @@
-import fetch from "node-fetch";
+import fetch from "cross-fetch";
 import ts from "typescript";
 import { NodeVM } from "vm2";
 import logger from "../utils/logger";
 
 const runCode = async (js: string, props: Record<string, any> = {}) => {
   try {
+    console.log({ js });
     const vm = new NodeVM({
-      compiler: (code) => ts.transpile(code),
+      compiler: (code) => ts.transpile(code, { allowJs: true }),
       require: {
         external: true,
       },
       sandbox: {
         fetch: fetch,
-        props
-      }
+        props,
+      },
     });
     const code = `
       module.exports = (async function () {
