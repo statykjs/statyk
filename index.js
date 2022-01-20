@@ -1,5 +1,5 @@
 import Statyk from "./dist";
-import fetch from "node-fetch";
+import fetch from "cross-fetch";
 import take from "lodash/take";
 
 const statyk = new Statyk();

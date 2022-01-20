@@ -1,0 +1,15 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`compileTemplate should render global context values 1`] = `"<p>Anurag</p>"`;
+
+exports[`compileTemplate should render html 1`] = `"<p>hello</p>"`;
+
+exports[`compileTemplate should render with frontmatter js code 1`] = `"<p>11</p>"`;
+
+exports[`compileTemplate should render with frontmatter yml 1`] = `
+"<p>anuraghazra</p>
+<div><p>apple</p>
+<p>mango</p></div>"
+`;
+
+exports[`compileTemplate should render with props 1`] = `"<p>1: </p><p>2</p>"`;

@@ -1,4 +1,9 @@
 {
+  "ts-node": {
+    "moduleTypes": {
+      "jest.config.ts": "cjs"
+    }
+  },
   "compilerOptions": {
     "target": "es2017",
     "module": "esnext",
@@ -10,9 +15,7 @@
     "strictNullChecks": true,
     "resolveJsonModule": true,
     "skipDefaultLibCheck": true,
+    "sourceMap": true
   },
-  "exclude": [
-    "**/dist/**",
-    "**/node_modules/**"
-  ]
+  "exclude": ["**/dist/**", "**/node_modules/**", "tests/**/*.test.ts"]
 }
