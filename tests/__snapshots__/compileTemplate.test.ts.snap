@@ -1,5 +1,45 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`compileTemplate frontmatter codeblock should take props 1`] = `"<p>https://nice.com/anuraghazra</p>"`;
+
+exports[`compileTemplate reusable js components should work 1`] = `
+"<body>
+  <button id=\\"1-dec-btn\\">-</button>
+<span id=\\"1-count\\">1</span>
+<button id=\\"1-inc-btn\\">+</button>
+
+
+
+  <button id=\\"2-dec-btn\\">-</button>
+<span id=\\"2-count\\">2</span>
+<button id=\\"2-inc-btn\\">+</button>
+
+
+
+</body><script>
+      function counter(props) {
+        const __id = props.__id;
+        var count = parseInt(props.count || 0);
+var step = parseInt(props.step || 1);
+var countElm = document.getElementById(__id + \\"-count\\");
+var incEl = document.getElementById(__id + \\"-inc-btn\\");
+var decEl = document.getElementById(__id + \\"-dec-btn\\");
+incEl.addEventListener(\\"click\\", function () {
+    count += step;
+    countElm.innerHTML = count;
+});
+decEl.addEventListener(\\"click\\", function () {
+    count -= step;
+    countElm.innerHTML = count;
+});
+
+      };
+    counter({ __id: \\"1\\", step: \\"5\\",
+count: \\"1\\",});
+counter({ __id: \\"2\\", step: \\"10\\",
+count: \\"2\\",});</script>"
+`;
+
 exports[`compileTemplate should render global context values 1`] = `"<p>Anurag</p>"`;
 
 exports[`compileTemplate should render html 1`] = `"<p>hello</p>"`;
@@ -10,6 +50,23 @@ exports[`compileTemplate should render with frontmatter yml 1`] = `
 "<p>anuraghazra</p>
 <div><p>apple</p>
 <p>mango</p></div>"
+`;
+
+exports[`compileTemplate should render with include 1`] = `"<p>this is test 1</p>"`;
+
+exports[`compileTemplate should render with markdown 1`] = `"### Hello Anurag"`;
+
+exports[`compileTemplate should render with multiple includes 1`] = `
+"<p>this is test 2</p>
+<p>this is test 3</p>"
+`;
+
+exports[`compileTemplate should render with nested includes 1`] = `"<p>All the way: root</p>"`;
+
+exports[`compileTemplate should render with partials containing frontmatter codeblock 1`] = `
+"<p>
+  https://nice.com/anuraghazra/1
+</p>"
 `;
 
 exports[`compileTemplate should render with props 1`] = `"<p>1: </p><p>2</p>"`;

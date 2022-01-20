@@ -83,9 +83,7 @@ function evaluateMustachesInProps(
   let _props: { attr: string; value: string }[] = [];
   Object.keys(attributes).map((attr) => {
     regexMatchAll(MUSTACHE_REGEX, attributes[attr], (match) => {
-      const value = nJSON.normalizeSync(
-        runExpression(match[1], props, globalVars)
-      );
+      const value = runExpression(match[1], props, globalVars);
       _props.push({ attr, value });
     });
   });
@@ -174,7 +172,7 @@ const compileTemplate = async (
     const parsedUrl = path.resolve(baseFolder, url!);
     const shtml = fs.readFileSync(parsedUrl, { encoding: "utf-8" });
 
-    const mergedProps = merge(context, include.attributes);
+    const mergedProps = include.attributes;
 
     const awaited = await compileTemplate(
       instanceComponentScript(
