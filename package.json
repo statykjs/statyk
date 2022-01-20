@@ -1,7 +1,7 @@
 {
   "name": "statyk",
   "private": false,
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "A dead simple statyk site generator",
   "homepage": "https://github.com/statykjs/statyk",
   "bugs": {
