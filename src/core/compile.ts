@@ -7,7 +7,7 @@ import logger from "../utils/logger";
 import copyAssets from "../utils/copyAssets";
 import relinkHyperlinks from "./relinkHyperlinks";
 import writeToOutput from "../utils/writeToOutput";
-import compileTemplate, { stack } from "./compileTemplate";
+import compileTemplate from "./compileTemplate";
 import injectLiveReloadScript from "../utils/injectLiveReloadScript";
 import { parseMarkdown } from "./buildPagesFolder";
 import { PluginPageNode, StatykContext } from "./types";

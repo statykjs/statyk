@@ -159,8 +159,6 @@ function extractFrontmatter(content: string): FmExtractorReturn {
   };
 }
 
-export const stack: any[] = [];
-
 const compileTemplate = async (
   html: string,
   baseFolder: string,
@@ -170,7 +168,6 @@ const compileTemplate = async (
   const { body, attributes, code, isCodeblock } = extractFrontmatter(html);
   const root = parse(body);
   const includes = root.querySelectorAll("include[src]");
-
   let codeResult = {};
   if (isCodeblock) {
     codeResult = await runCode(code!, context);
@@ -201,7 +198,7 @@ const compileTemplate = async (
     const evaluatedProps = evaluateMustachesInProps(
       include.attributes,
       context,
-      globalVars
+      codeResult
     );
     evaluatedProps.forEach((prop) => {
       include.setAttribute(prop.attr, prop.value);
