@@ -1,0 +1,16 @@
+---
+const count = `${1}`.padStart(7, "0");
+const api = `https://ifsc.razorpay.com/HDFC${count}`;
+
+const data = await fetch(api).then(res => res.json());
+return { d: data };
+---
+
+<include src="partials/layout.html" title="Simple example">
+  <p>IFSC: {{d.IFSC + props.nice}}</p>
+  <p>Bank: {{d.BANKCODE}}</p>
+
+  nice: {{props.nice}}
+
+  <include src="partials/avatar.html" name={{d.BANKCODE}} />
+</include>

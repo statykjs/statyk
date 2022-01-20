@@ -1,5 +1,5 @@
 {
   "out": "./out",
-  "input": "./examples/advanced/index.html",
+  "input": "./examples/simple/index.html",
   "pagesFolder": 'pages'
 }

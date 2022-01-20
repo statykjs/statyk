@@ -39,7 +39,7 @@ export class PluginManager {
     this.buildInfo = buildInfo;
   }
 
-  async runPlugins<T extends PluginPageNode & BuildInfo>(
+  async runPlugins<T extends Partial<PluginPageNode & BuildInfo>>(
     name: PluginHookNames,
     data?: T
   ) {
@@ -49,6 +49,7 @@ export class PluginManager {
         await plugin?.[name]?.(this.buildInfo);
         return;
       }
+      // @ts-ignore
       await plugin?.[name]?.(data!, this.buildInfo);
     }
   }

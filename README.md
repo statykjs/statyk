@@ -12,8 +12,11 @@ TODOS
 
 - [x] JS API for creating pages
 - [x] Compile scripts with AST
+- [x] TypeScript migration of codebase
+- [ ] StatykCompiler API
+- [ ] Improve build scripts
+- [ ] Write tests
 - [ ] Content folders support
 - [ ] Support extrating scripts to external js script
 - [ ] Support for <style\> tag
 - [ ] Improve CLI
-- [ ] TypeScript migration of codebase
